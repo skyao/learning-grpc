@@ -1,0 +1,5 @@
+.*
+!.gitignore
+_book
+node_modules
+
