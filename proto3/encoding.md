@@ -1,7 +1,7 @@
 编码
 =======
 
-注: 内容翻译来自官网资料 [Encoding](https://developers.google.com/protocol-buffers/docs/encoding). 由于内容比较多而繁杂, 因此部分不关心的内容将被忽略.
+注: 内容翻译来自官网资料 [Encoding](https://developers.google.com/protocol-buffers/docs/encoding).
 
 这封文档描述protocol buffer消息的二进制格式. 在应用中使用protocol buffer不需要理解这些, 但是它对于了解不同的protocol buffer格式对编码消息的大小的影响非常有用.
 
@@ -176,9 +176,50 @@ As you can see, the last three bytes are exactly the same as our first example (
 
 如果元素是可选的, 被编码的消息可能有也可能没有带有这个标签数字的键值对.
 
-Normally, an encoded message would never have more than one instance of an optional or required field. However, parsers are expected to handle the case in which they do. For numeric types and strings, if the same value appears multiple times, the parser accepts the last value it sees. For embedded message fields, the parser merges multiple instances of the same field, as if with the Message::MergeFrom method – that is, all singular scalar fields in the latter instance replace those in the former, singular embedded messages are merged, and repeated fields are concatenated. The effect of these rules is that parsing the concatenation of two encoded messages produces exactly the same result as if you had parsed the two messages separately and merged the resulting objects. That is, this:
+通常, 编码好的消息绝不会有一个可选或必需字段的多个实例. 但是, 解析器被期望能处理这种情况. 对于数值类型和字符串, 如果相同的值出现多次, 解析器接受它看到的最后一个值. 对于内嵌消息字段, 解析器合并同多个实例的同一个字段, 就像Message::MergeFrom方法一样 - 就是说, 后面的实例的所有scalar字段会覆盖前面的实例, scalar内嵌消息会合并, 而重复字段会连接. 这些规则的影响是: 解析连接在一起的两个编码后的消息和分别解析两个消息然后合并得到的对象, 结果是完全一样的. 也就是说, 这个方法:
 
-通常, 编码好的消息绝不会有一个可选或必需字段的多个实例. 但是, 解析器被期望能处理这种情况. 对于数值类型和字符串, 如果相同的值出现多次, 解析器接受它看到的最后一个值. 对于内嵌消息字段, 解析器合并同多个实例的同一个字段, 就像Message::MergeFrom方法一样 - 就是说, 所有scalar字段
+```java
+MyMessage message;
+message.ParseFromString(str1 + str2);
+```
 
+等同于这个方式:
 
+```java
+MyMessage message, message2;
+message.ParseFromString(str1);
+message2.ParseFromString(str2);
+message.MergeFrom(message2);
+```
 
+这个特性偶尔有用, 因为它容许你合并两个消息, 即使在你不知道他们类型的情况下.
+
+## 打包重复字段
+
+版本2.1.0引入了打包重复字段(packed repeated fields), 声明方式和重复字段类似但是带有一个[packed=true]选项. 工作方式类似重复字段, 但是编码不同. 不包含元素的打包重复字段不会出现在编码后的消息中. 另外, 字段的所有元素被打包到一个简单的键值对中, wire typt为2 (length-delimited). 每个元素和平常一样编码, 只是前面没有标签.
+
+例如, 假设有消息类型:
+
+```java
+message Test4 {
+  repeated int32 d = 4 [packed=true];
+}
+```
+
+现在来构建一个Test4, 为重复字段d设置值3, 270 和 86942. 然后, 编码结果会是这样:
+
+    22        // tag (field number 4, wire type 2)
+    06        // payload size (6 bytes)
+    03        // first element (varint 3)
+    8E 02     // second element (varint 270)
+    9E A7 05  // third element (varint 86942)
+
+只有原生数字类型(类型为varint, 32位或者64位wire类型)的重复字段才可以声明为"packed".
+
+注意, 虽然通常没有理由为一个打包重复字段编码多个键值对, 编码器必须准备接受多个键值对. 在这种情况下, 负载将被连接合并. 每个键值对必须包含完整数量的元素(Each pair must contain a whole number of elements, 这里有点不懂既然负载都合并了,也就只剩下一个键值对可, 何来each pair?).
+
+# 字段顺序
+
+无论你在.proto文件中以任何顺序使用字段数字, 当消息被序列化时, 它已知的字段应该按照字段数字顺序写入, 在提供的c++,java和python序列化代码中是如此. 这容许解析代码使用基于字段数字顺序的优化. 当然, protocolbuffer解析器必须能够解析任何顺序的字段, 毕竟不是所有消息都是被简单从对象系列化得来的 - 例如, 有时通过简单的连接来合并两个消息.
+
+如果一个消息有未知字段, 当前java和c++实现会在顺序写入已知字段之后按照任意顺序写入他们. 当前Python实现不跟踪(trace)未知字段.
