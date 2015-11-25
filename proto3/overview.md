@@ -1,6 +1,12 @@
 Protocol Buffer概述
 ========
 
+```uml
+@startuml
+a -> b
+@enduml
+```
+
 注: 官网文档[Developer Guide Overview](https://developers.google.com/protocol-buffers/docs/overview)的读书笔记, 这个文档水比较多, 不直接逐段翻译, 只摘录部分内容作为读书笔记.
 
 一开始就给出protocol buffers 的定义:
