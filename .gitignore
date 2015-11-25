@@ -2,5 +2,6 @@
 !.gitignore
 _book
 node_modules
-assets
+assets/images/uml/*/*.uml
+assets/images/uml/*/*.uml.sum
 
