@@ -1,7 +1,7 @@
 bui# Summary
 
-* [google grpc 介绍](introduction/index.md)
-    * [google grpc 信息](introduction/information.md)
+* [gPRC 介绍](introduction/index.md)
+    * [gRPC 信息](introduction/information.md)
 * [Protocol Buffer]()
     * [官网开发指南]()
         * [概述(笔记)](proto3/overview.md)
@@ -14,3 +14,4 @@ bui# Summary
     	* [概述(笔记)](grpc/overview.md)
     	* [gRPC概念(笔记)](grpc/grpc_concepts.md)
 * [集成Spring Boot](springboot/springboot.md)
+* [文档生成](documentation/index.md)
