@@ -1,31 +1,40 @@
 Protocol Buffer概述
 ========
 
-```uml
-@startuml
-a -> b
-@enduml
-```
+> 注: 内容翻译来自官网文档 [Developer Guide Overview](https://developers.google.com/protocol-buffers/docs/overview).
 
-注: 官网文档[Developer Guide Overview](https://developers.google.com/protocol-buffers/docs/overview)的读书笔记, 这个文档水比较多, 不直接逐段翻译, 只摘录部分内容作为读书笔记.
+欢迎来到protocol buffer的开发者文档 - protocol buffer是一个**语言无关，平台无关，可扩展的结构化数据序列化方案, 用于协议通讯, 数据存储和其他更多用途**.
 
-一开始就给出protocol buffers 的定义:
-
-> a language-neutral, platform-neutral, extensible way of serializing structured data for use in communications protocols, data storage, and more.
-
-> 语言无关, 平台无关, 可扩展的结构化数据序列化方案, 用于协议通讯, 数据存储和其他更多用途.
+这份文档针对想在应用中使用protocol buffer的Java, C++或者Python开发者。这个概述介绍protocol buffer并告诉你需要知道哪些来开始 - 你可以随后继续跟随 [教程](https://developers.google.com/protocol-buffers/docs/tutorials) 或者深入 [protocol buffer编码](encoding.md) 。所有三个语言的 [API参考文档](../reference/index.md) 也已经提供，还有编写.proto文件的 [语言](language_guide.html) 和 [风格](style_guide.html) 指南。
 
 # protocol buffers是什么?
 
-详细解释什么是protocol buffers:
-
-1. Protocol buffer 是一个灵活,高效,自动化的结构化数据序列化机制 - 想到xml, 但是更小, 更快并且更简单.
-
-2. 一旦你定义好你的数据如何构造, 然后你可以用不同的语言使用特殊的生成源代码来轻易的读写你的结构化数据到和从不同的数据流.
-
-3. 你甚至可以更新你的数据结构而不打破已部署的使用"旧有"格式编译的程序.
+Protocol buffer 是一个灵活,高效,自动化的结构化数据序列化机制 - 联想xml, 但是更小, 更快并且更简单.一旦你定义好你的数据如何构造, 然后你可以用不同的语言使用特殊的生成源代码来轻易的读写你的结构化数据到和从不同的数据流.你甚至可以更新你的数据结构而不打破已部署的使用"旧有"格式编译的程序.
 
 # How do they work?
+
+通过在.proto文件中定义protocol buffer消息类型来指定要序列化的信息如何组织。每个protocol buffer信息是一个小的信息逻辑记录，包含一序列的"名字-值"对。这里是一个非常基本的例子，.proto文件定义了一个消息，包含一个人的消息：
+
+```java
+message Person {
+  required string name = 1;
+  required int32 id = 2;
+  optional string email = 3;
+
+  enum PhoneType {
+    MOBILE = 0;
+    HOME = 1;
+    WORK = 2;
+  }
+
+  message PhoneNumber {
+    required string number = 1;
+    optional PhoneType type = 2 [default = HOME];
+  }
+
+  repeated PhoneNumber phone = 4;
+}
+```
 
 protocol buffer的工作方式简单说有以下几个步骤:
 
