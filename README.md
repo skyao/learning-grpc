@@ -1,4 +1,4 @@
-Grpc学习笔记
+Grpc学习笔记和资料翻译
 ===========
 
 # 介绍
@@ -13,20 +13,25 @@ grpc是google最新发布(2015年2月底)的开源rpc框架, 声称是"一个高
 
 现在已有的内容:
 
-* [google grpc 介绍](introduction/index.md)
-    * [google grpc 信息](introduction/information.md)
-* [Protocol Buffer]()
-    * [官网开发指南]()
-        * [概述(笔记)](proto3/overview.md)
-        * [语言指南(翻译)](proto3/language_guide.md)
-        * [风格指南(翻译)](proto3/style_guide.md)
-        * [编码(翻译)](proto3/encoding.md)
-        * [技巧(翻译)](proto3/techniques.md)
+* [gPRC 介绍](introduction/index.md)
+    * [gRPC 信息](introduction/information.md)
+* [Protocol Buffer](proto3/index.md)
+    * [开发指南](proto3/guide/index.md)
+        * [概述(翻译)](proto3/guide/overview.md)
+        * [语言指南(翻译)](proto3/guide/language_guide.md)
+        * [风格指南(翻译)](proto3/guide/style_guide.md)
+        * [编码(翻译)](proto3/guide/encoding.md)
+        * [技巧(翻译)](proto3/guide/techniques.md)
+	* [API参考文档](proto3/reference/index.md)
+		* [Java Generated Code](proto3/reference/java/index.md)
 * [gPRC文档]()
-    * [官网开发指南]()
+    * [官网开发指南](grpc/grpc.md)
     	* [概述(笔记)](grpc/overview.md)
     	* [gRPC概念(笔记)](grpc/grpc_concepts.md)
+* [实战](action/index.md)
+	* [集成Spring Boot](action/springboot/springboot.md)
+	* [文档生成](action/documentation/index.md)
 
 内容陆续添加中......
 
-注: 如果你看到的是github的源代码, 请点击 [这里](http://skyao.github.io/leaning-grpc/) 查看html内容.
+> 注: 如果你看到的是github的源代码, 请点击 [这里](http://skyao.github.io/leaning-grpc/) 查看html内容.
