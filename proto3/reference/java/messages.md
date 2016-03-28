@@ -1,7 +1,7 @@
-Messages/消息
+消息
 =========
 
-> 注：内容翻译自官网文档 [Packages](https://developers.google.com/protocol-buffers/docs/reference/java-generated#message)
+> 注：内容翻译自官网文档 [Messages](https://developers.google.com/protocol-buffers/docs/reference/java-generated#message)
 
 给出一个简单的消息定义：
 

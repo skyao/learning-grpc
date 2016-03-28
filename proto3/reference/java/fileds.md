@@ -1,7 +1,7 @@
 字段
 =========
 
-> 注：内容翻译自官网文档 [Packages](https://developers.google.com/protocol-buffers/docs/reference/java-generated#fields)
+> 注：内容翻译自官网文档 [Fields](https://developers.google.com/protocol-buffers/docs/reference/java-generated#fields)
 
 除了在前一节描述的方法之外，protocol buffer编译器为每个字段生成访问器方法集合
 
