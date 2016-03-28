@@ -32,16 +32,14 @@ module.exports = function (grunt) {
                 root: '_book',
 
                 port: 4000,
-                host: "127.0.0.1",
+                host: "0.0.0.0",
 
                 showDir : true,
                 autoIndex: true,
-                defaultExt: "html",
-				
+                ext: "html",
+				runInBackground: true,
 				logFn: function(req, res, error) { },
-
-                //wait or not for the process to finish
-                runInBackground: true
+				openBrowser : true
             }
         }, 
 		
