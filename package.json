@@ -12,11 +12,12 @@
     "devDependencies": {
         "grunt": "~0.4.5",
         "grunt-gitbook": "~1.5.0",
-        "grunt-gh-pages": "~0.10.0",
-        "grunt-contrib-clean": "~0.6.0",
-		"grunt-contrib-watch": "~0.6.1",
-        "grunt-http-server": "~1.4.0",
-		"grunt-open": "~0.2.3"
+        "grunt-gh-pages": "~1.0.0",
+        "grunt-contrib-clean": "~1.0.0",
+		"grunt-contrib-watch": "~1.0.0",
+        "grunt-http-server": "~1.14.0",
+		"grunt-open": "~0.2.3",
+		"gitbook-plugin-plantuml": "~0.0.15"
     },
     "peerDependencies": {
         "grunt": "~0.4.5"
