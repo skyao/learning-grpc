@@ -1,7 +1,7 @@
 Protocl Buffer 3 语言指南
 ========================
 
-注: 内容翻译来自官网资料 [Language Guide (proto3)](https://developers.google.com/protocol-buffers/docs/proto3).
+> 注: 内容翻译来自官网资料 [Language Guide (proto3)](https://developers.google.com/protocol-buffers/docs/proto3).
 
 这份指南描述如何使用protocol buffer语言来构建你的protocol buffer数据,包括.proto文件语法和如何从.proto文件生成数据访问类. 覆盖protocol buffers语言的proto3版本, 对于老版本proto2的语法,请参考[Proto2语言指南](https://developers.google.com/protocol-buffers/docs/proto).
 
@@ -88,8 +88,6 @@ message Foo {
 }
 ```
 
-Note that you can't mix field names and tag numbers in the same reserved statement.
-
 注意: **不能在同一个保留字段声明中混合使用名字和标签数字**
 
 ## .proto可以生成什么?
@@ -135,8 +133,6 @@ TBD: ByteString 是个什么东东?
 你可以在[Protocol Buffer Encoding](https://developers.google.com/protocol-buffers/docs/encoding)中找到更多资料, 了解当你序列化消息的时候, 这些类型是如何编码的.
 
 # 默认值
-
-When a message is parsed, if the encoded message does not contain a particular singular element, the corresponding field in the parsed object is set to the default value for that field. These defaults are type-specific:
 
 当消息被解析时, 如果被编码的消息没有包含特定的简单元素, 被解析的对象对应的字段被设置为默认值. 默认值是和类型有关的:
 
@@ -199,8 +195,6 @@ enum EnumNotAllowingAlias {
 枚举常量必须在32位整形的范围内. 由于枚举值使用varint encoding, 负值是效率低下的因此不推荐使用.你可以在消息定义中定义枚举, 如前面例子那样, 或者在外部 - 这些枚举可以在.proto文件的任意消息定义中重用. 你也可以用在一个消息中声明的枚举类型作为别的消息的字段类型, 需要使用语法MessageType.EnumType.
 
 当你运行protocol buffer 编译器处理使用枚举的.proto文件时, 生成的代码将会有java或c++的对应枚举, 对于Python, 在生成的运行时类中会有一个特别的EnumDescriptor用于创建带有整型值的symbolic常量集合.
-
-During deserialization, unrecognized enum values will be preserved in the message, though how this is represented when the message is deserialized is language-dependent. In languages that support open enum types with values outside the range of specified symbols, such as C++ and Go, the unknown enum value is simply stored as its underlying integer representation. In languages with closed enum types such as Java, a case in the enum is used to represent an unrecognized value, and the underlying integer can be accessed with special accessors. In either case, if the message is serialized the unrecognized value will still be serialized with the message.
 
 在反序列过程中, 未被识别的枚举值将被保留在消息中, 但是当消息被反序列号时将会如何表现是和语言有关的. 在支持开放枚举类型可以用定义范围之外的值的语言中, 例如C++和Go, 未知的枚举值被简单保存为它底层整型描述. 在封闭枚举类型的语言例如Java中, 一个枚举的特例用于表示这个未识别的值, 底层整型可以被特殊的访问器访问. 在其他案例中, 如果消息被系列化, 这个未识别的值将和消息一起被序列号.
 
@@ -502,11 +496,7 @@ service SearchService {
 
 使用protocol buffers最直接的RPC系统是gRPC: 一个Google开发的语言和平台无关的开源RPC系统. gRPC 可以非常好和protocol buffers一起工作并使用特别的protocol buffer编译器插件从.proto文件直接生成对应的RPC代码.
 
-If you don't want to use gRPC, it's also possible to use protocol buffers with your own RPC implementation. You can find out more about this in the Proto2 Language Guide.
-
 如果不想用gRPC, 也可以在自己的RPC实现中使用protocol buffers. 可以在[Proto2语言指南](https://developers.google.com/protocol-buffers/docs/proto#services)中找到更多这个消息.
-
-There are also a number of ongoing third-party projects to develop RPC implementations for Protocol Buffers. For a list of links to projects we know about, see the third-party add-ons wiki page.
 
 也有一个第三方项目正在为Protocol Buffers开发RPC实现. 这里有一份我们知道的项目列表, 请见[third-party add-ons wiki page](https://github.com/google/protobuf/wiki/Third-Party-Add-ons).
 

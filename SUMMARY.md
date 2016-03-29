@@ -1,7 +1,10 @@
 bui# Summary
 
 * [gPRC 介绍](introduction/index.md)
-    * [gRPC 信息](introduction/information.md)
+    * [资料收集整理](introduction/information.md)
+* [gPRC文档](grpc/index.md)
+    * [gRPC官方文档(中文版)](grpc/official_docs.md)
+    * [gRPC动机和设计原则](grpc/motivation.md)
 * [Protocol Buffer](proto3/index.md)
     * [开发指南(翻译)](proto3/guide/index.md)
         * [概述](proto3/guide/overview.md)
@@ -19,10 +22,6 @@ bui# Summary
 			* [Oneof](proto3/reference/java/oneof.md)
 			* [枚举](proto3/reference/java/enumerations.md)
 			* [扩展](proto3/reference/java/extensions.md)
-* [gPRC文档](grpc/index.md)
-    * [官网开发指南](grpc/grpc.md)
-    	* [概述(笔记)](grpc/overview.md)
-    	* [gRPC概念(笔记)](grpc/grpc_concepts.md)
 * [实战](action/index.md)
 	* [集成Spring Boot](action/springboot/springboot.md)
 	* [文档生成](action/documentation/index.md)
