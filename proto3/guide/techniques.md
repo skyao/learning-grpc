@@ -1,7 +1,7 @@
 技巧
 =======
 
-注: 本文内容翻译来自Protocol Buffer 官网 Developer Guide 中的 [Techniques](http://groups.google.com/group/protobuf)一文.
+> 注: 本文内容翻译来自Protocol Buffer 官网 Developer Guide 中的 [Techniques](http://groups.google.com/group/protobuf)一文.
 
 这个页面讲述一些处理protocol buffer的被广泛应用的设计模式. 你也可以到[Protocol Buffers discussion group](http://groups.google.com/group/protobuf)发表设计和使用的问题.
 

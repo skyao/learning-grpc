@@ -1,7 +1,7 @@
 编码
 =======
 
-注: 内容翻译来自官网资料 [Encoding](https://developers.google.com/protocol-buffers/docs/encoding).
+> 注: 内容翻译来自官网资料 [Encoding](https://developers.google.com/protocol-buffers/docs/encoding).
 
 这封文档描述protocol buffer消息的二进制格式. 在应用中使用protocol buffer不需要理解这些, 但是它对于了解不同的protocol buffer格式对编码消息的大小的影响非常有用.
 
@@ -58,8 +58,6 @@ message Test1 {
 
 你知道的, protocol buffer消息是一系列的键值对. 消息的二进制格式仅仅是用字段的数字作为key - 每个字段的名字和声明的类型仅仅在解码的最后通过引用消息类型定义(例如.proto文件)来检测.
 
-When a message is encoded, the keys and values are concatenated into a byte stream. When the message is being decoded, the parser needs to be able to skip fields that it doesn't recognize. This way, new fields can be added to a message without breaking old programs that do not know about them. To this end, the "key" for each pair in a wire-format message is actually two values – the field number from your .proto file, plus a wire type that provides just enough information to find the length of the following value.
-
 当消息被编码时, key和value被链接到一个字节流. 当消息被解码时, 解析器需要能跳过无法识别的字段. 这样, 新的字段可以被增加到消息而不打破旧的不知道新他们的程序. 在一个消息中每个键值对的"key"事实上有两个值 - 来从.proto文件的字段数字, 外加类型用于提供足够的信息来找到随后的值的长度.
 
 可用的类型如下:
@@ -77,11 +75,7 @@ When a message is encoded, the keys and values are concatenated into a byte stre
 
 让我们再来看我们的简单例子. 现在你知道在流的第一个数字中总是一个varint key, 这里是08, 或则(去掉msb):
 
-Now let's look at our simple example again. You now know that the first number in the stream is always a varint key, and here it's 08, or (dropping the msb):
-
 	000 1000
-
-You take the last three bits to get the wire type (0) and then right-shift by three to get the field number (1). So you now know that the tag is 1 and the following value is a varint. Using your varint-decoding knowledge from the previous section, you can see that the next two bytes store the value 150.
 
 取后三位可以得到类型(0), 然后位移3位可以得到字段数字(1). 所以现在你知道标签是1, 后面的值是一个varint. 使用从上一章得到的varint解码知识, 可以知道后面2个字节存储的值是150.
 
@@ -95,8 +89,6 @@ You take the last three bits to get the wire type (0) and then right-shift by th
 ## 有符号整型
 
 如你所见, 在上一节中, 所有和类型0关联的protocol buffer类型被编码为varints. 但是, 当编码负数的时候, 在有符号整型(sint32和sint64) 和 "标准" 整型类型(int32和int64)之间有一个重要的差别. 如果用int32或者int64作为一个负数的类型, 所得结果的varint总是10个字节长度 - 它被当成一个非常巨大的无符号整型处理. 如果使用有符号类型, 所得结果的varint使用更有效率的ZigZag编码.
-
-ZigZag encoding maps signed integers to unsigned integers so that numbers with a small absolute value (for instance, -1) have a small varint encoded value too. It does this in a way that "zig-zags" back and forth through the positive and negative integers, so that -1 is encoded as 1, 1 is encoded as 2, -2 is encoded as 3, and so on, as you can see in the following table:
 
 ZigZag 编码将有符号整型映射到无符号整型, 所有绝对值小的值(比如-1)数字会得到一个小的varint编码值. 实现的方式是"zig-zags", 在正数和负数整型之间来回摇摆, 因此-1被编码为1, 1被编码为2, -2被编码为3, 由此类推, 在下面的表格中可以看到:
 
@@ -152,13 +144,9 @@ message Test3 {
 }
 ```
 
-And here's the encoded version, again with the Test1's a field set to 150:
-
 这里是编码后的版本, Test1的字段再次设置为150:
 
 	1a 03 08 96 01
-
-As you can see, the last three bytes are exactly the same as our first example (08 96 01), and they're preceded by the number 3 – embedded messages are treated in exactly the same way as strings (wire type = 2).
 
 可以看到, 最后三个字节和第一个例子里面完全相同(08 96 01), 并且他们前面有一个数字3 - 内嵌消息完全是和字符串(wire type = 2)一样对待.
 

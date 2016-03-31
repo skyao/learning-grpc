@@ -1,7 +1,7 @@
 风格指南
 =======
 
-注: 内容翻译来自官网资料 [Style Guide](https://developers.google.com/protocol-buffers/docs/style).
+> 注: 内容翻译来自官网资料 [Style Guide](https://developers.google.com/protocol-buffers/docs/style).
 
 这个文档为.proto文件提供风格指南. 通过遵循下列约定, 可以让protocol buffer消息定义和他们对应的类保持一致并容易阅读.
 
