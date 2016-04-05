@@ -7,16 +7,16 @@ Java生成代码
 
 > 说明：这个文档的英文原文是放在一个页面中，有点长，阅读起来比较累，因此我翻译时按照章节拆分为多个页面。
 
-章节列表：
+拆分之后的章节列表：
 
-* [编译器调用](proto3/reference/java/compiler_invocation.md)
-* [包](proto3/reference/java/packages.md)
-* [消息](proto3/reference/java/messages.md)
-* [字段](proto3/reference/java/fileds.md)
-* [Any](proto3/reference/java/any.md)
-* [Oneof](proto3/reference/java/oneof.md)
-* [枚举](proto3/reference/java/enumerations.md)
-* [扩展](proto3/reference/java/extensions.md)
+* 编译器调用
+* 包
+* 消息
+* 字段
+* Any
+* Oneof
+* 枚举
+* 扩展
 * 服务(忽略)
 * 插件插入点(忽略)
 
