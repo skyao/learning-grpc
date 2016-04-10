@@ -13,4 +13,4 @@ gRPC文档的另外一个严重问题是：几乎找不到中文文档和资料�
 
 还能找到一些其他的文档，例如：
 
-- [gRPC动机和设计原则](grpc/motivation.md)
+- [gRPC动机和设计原则](motivation.md)
