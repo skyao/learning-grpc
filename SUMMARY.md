@@ -5,7 +5,7 @@ bui# Summary
 * [gPRC文档](grpc/index.md)
     * [gRPC官方文档(中文版)](grpc/official_docs.md)
     * [gRPC动机和设计原则](grpc/motivation.md)
-* [Protocol Buffer](proto3/index.md)
+* [Protocol Buffer 3](proto3/index.md)
 * [gRPC源码学习](sourcecode/index.md)
 	* [客户端代码](sourcecode/client/index.md)
 	* [服务器端代码](sourcecode/server/index.md)

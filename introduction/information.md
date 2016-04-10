@@ -39,9 +39,6 @@ Documentation@grpc.io中内容比较重要:
 - [grpc-docker-library](https://github.com/grpc/grpc-docker-library): 包含官方gRPC Docker镜像的Git仓库
 
 
-## protocol buffer相关
-
-和protocol buffer相关的一些项目, 列表请见[third-party add-ons wiki page](https://github.com/google/protobuf/wiki/Third-Party-Add-ons)
 
 
 
