@@ -1,6 +1,6 @@
 {
     "author": "Sky Ao <aoxiaojian@gmail.cn>",
-    "description": "This is a book about the records in leaning google gRPC.",
+    "description": "Grpc学习笔记",
     "extension": null,
     "generator": "site",
     "isbn": null,
@@ -30,7 +30,7 @@
         "pageNumbers": false,
         "paperSize": "a4"
     },
-    "plugins": ["plantuml"],
+    "plugins": [],
     "title": "Leaning gRPC",
     "variables": {}
 }

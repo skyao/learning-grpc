@@ -13,7 +13,7 @@ module.exports = function (grunt) {
             development: {
                 input: "./",
                 title: "Leaning Grpc",
-                description: "Records in leaning google grpc",
+                description: "Grpc学习笔记",
                 github: "skyao/leaning-grpc"
             }
         },

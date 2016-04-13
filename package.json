@@ -1,7 +1,7 @@
 {
     "name": "Leaning-Grpc",
     "version": "0.0.1",
-    "description": "Records in leaning google grpc",
+    "description": "Grpc学习笔记",
     "repository": {
         "type": "git",
         "url": "https://github.com/skyao/leaning-grpc"
@@ -16,8 +16,7 @@
         "grunt-contrib-clean": "~1.0.0",
 		"grunt-contrib-watch": "~1.0.0",
         "grunt-http-server": "~1.14.0",
-		"grunt-open": "~0.2.3",
-		"gitbook-plugin-plantuml": "~0.0.15"
+		"grunt-open": "~0.2.3"
     },
     "peerDependencies": {
         "grunt": "~0.4.5"
