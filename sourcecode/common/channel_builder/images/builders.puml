@@ -1,0 +1,16 @@
+@startuml
+
+class ManagedChannelBuilder <T extends ManagedChannelBuilder<T>> {
+}
+
+class AbstractManagedChannelImplBuilder <T extends AbstractManagedChannelImplBuilder<T>> {
+}
+
+class NettyChannelBuilder {
+}
+
+ManagedChannelBuilder <-- AbstractManagedChannelImplBuilder
+AbstractManagedChannelImplBuilder <-- NettyChannelBuilder
+
+
+@enduml

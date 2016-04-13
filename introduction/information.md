@@ -5,6 +5,7 @@
 
 - [grpc官网](http://www.grpc.io/)
 - [grpc-java](https://github.com/grpc/grpc-java) gRPC Java实现.
+- [javadoc](http://www.grpc.io/grpc-java/javadoc/index.html): grpc java 的javadoc地址
 
 # 文档
 
