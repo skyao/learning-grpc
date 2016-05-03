@@ -36,7 +36,9 @@ public static ManagedChannelBuilder<?> forTarget(String target) {
 }
 ```
 
-用target字符串创建一个channel， 可以是一个有效的命名解析器兼容(NameResolver-compliant)的URI，或者是一个 authority(权威，权力?) 字符串。
+用target字符串创建一个channel， 可以是一个有效的命名解析器兼容(NameResolver-compliant)的URI，或者是一个 authority 字符串。
+
+> 注： authority 是URI中的术语， URI的标准组成部分如 `[scheme:][//authority][path][?query][#fragment]`， authority代表URI中的 `[userinfo@]host[:port]`，包括host(或者ip)和可选的port和userinfo。
 
 命名解析器兼容(NameResolver-compliant)URI 是被作为URI定义的抽象层次(absolute hierarchical)URI。实例的URI：
 
@@ -47,7 +49,7 @@ public static ManagedChannelBuilder<?> forTarget(String target) {
 - "dns://8.8.8.8/foo.googleapis.com"
 - "zookeeper://zk.example.com:9900/example_service"
 
-authority(权威) 字符串将被转换为一个命名解析器兼容的URI， 使用"dns"作为scheme，没有authority，而且用合适转义之后的原始authority字符串作为它的path：
+authority字符串将被转换为一个命名解析器兼容的URI， 使用"dns"作为scheme，没有authority，而且用合适转义之后的原始authority字符串作为它的path：
 
 - "localhost"
 - "127.0.0.1"
@@ -159,7 +161,7 @@ public abstract T nameResolverFactory(NameResolver.Factory resolverFactory);
 
 如果这个方法没有被调用，builder将为这个 channel 使用 SimpleLoadBalancerFactory 。
 
-### loadBalancerFactory()
+### decompressorRegistry()
 
 ```java
 @ExperimentalApi

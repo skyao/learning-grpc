@@ -1,9 +1,6 @@
 Channel Builder
 ===============
 
+Channel Builder 的继承结构如下：
 
-```uml
-@startuml
-a -> b
-@enduml
-```
+![](images/builders.png)

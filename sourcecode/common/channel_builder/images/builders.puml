@@ -1,12 +1,37 @@
 @startuml
 
-class ManagedChannelBuilder <T extends ManagedChannelBuilder<T>> {
+class ManagedChannelBuilder {
+
++ static ManagedChannelBuilder<?> forAddress(String name, int port)
++ static ManagedChannelBuilder<?> forTarget(String target)
++ T directExecutor()
++ T executor(Executor executor)
++ T intercept(List<ClientInterceptor> interceptors)
++ T userAgent(String userAgent)
++ T overrideAuthority(String authority)
++ T usePlaintext(boolean skipNegotiation)
++ T nameResolverFactory(NameResolver.Factory resolverFactory)
++ T loadBalancerFactory(LoadBalancer.Factory loadBalancerFactory)
++ T decompressorRegistry(DecompressorRegistry registry)
+
++ ManagedChannel build()
 }
 
-class AbstractManagedChannelImplBuilder <T extends AbstractManagedChannelImplBuilder<T>> {
+class AbstractManagedChannelImplBuilder {
+# Attributes getNameResolverParams()
+# abstract ClientTransportFactory buildTransportFactory();
 }
 
 class NettyChannelBuilder {
++ channelType(Class<? extends Channel> channelType)
++ negotiationType(NegotiationType type)
++ protocolNegotiator(ProtocolNegotiator protocolNegotiator)
++ sslContext(SslContext sslContext)
++ eventLoopGroup(EventLoopGroup eventLoopGroup)
++ usePlaintext(boolean skipNegotiation)
++ flowControlWindow(int flowControlWindow)
++ maxMessageSize(int maxMessageSize)
++ maxHeaderListSize(int maxHeaderListSize)
 }
 
 ManagedChannelBuilder <-- AbstractManagedChannelImplBuilder
