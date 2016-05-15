@@ -1,0 +1,135 @@
+类Status
+========
+
+# 类Status的说明
+
+> 注：下面内容翻译自 类Status 的 [javadoc](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/Status.java)
+
+通过提供标准状态码并结合可选的描述性的信息来定义操作的状态。状态的实例创建是通过以合适的状态码开头并补充额外信息：Status.NOT_FOUND.withDescription("Could not find 'important_file.txt'");
+
+对于客户端，每个远程调用在完成时都将返回一个状态。如果发生错误，这个状态将以RuntimeException的方式传播到阻塞桩（blocking stubs），或者作为一个明确的参数给到监听器。
+
+同样的，服务器可以通过抛出 StatusRuntimeException 或者 给回掉传递一个状态来报告状态。
+
+提供工具方法来转换状态到exception并从exception中解析出状态。
+
+# 状态码
+
+## 状态码详细定义
+
+- OK(0)：成功
+
+	操作成功完成
+
+- CANCELLED(1)：被取消
+
+	操作被取消（通常是被调用者取消）
+
+- UNKNOWN(2)：未知
+
+	未知错误。这个错误可能被返回的一个例子是，如果从其他地址空间接收到的状态值属于在当前地址空间不知道的错误空间（注：看不懂。。。）。此外，API发起的没有返回足够信息的错误也可能被转换到这个错误。
+
+- INVALID_ARGUMENT(3)：无效参数
+
+	客户端给出了一个无效参数。注意，这和 FAILED_PRECONDITION 不同。INVALID_ARGUMENT 指明是参数有问题，和系统的状态无关。
+
+- DEADLINE_EXCEEDED(4)：超过最后期限
+
+	在操作完成前超过最后期限。对于修改系统状态的操作，甚至在操作被成功完成时也可能返回这个错误。例如，从服务器返回的成功的应答可能被延迟足够长时间以至于超过最后期限。
+
+- NOT_FOUND(5)：无法找到
+
+	某些请求实体(例如文件或者目录)无法找到
+
+- ALREADY_EXISTS(6)：已经存在
+
+	某些我们试图创建的实体(例如文件或者目录)已经存在
+
+- PERMISSION_DENIED(7)：权限不足
+
+	调用者没有权限来执行指定操作。PERMISSION_DENIED 不可以用于因为某些资源被耗尽而导致的拒绝（对于这些错误请使用 RESOURCE_EXHAUSTED）。当调用者无法识别身份时不要使用 PERMISSION_DENIED （对于这些错误请使用 UNAUTHENTICATED）
+
+- RESOURCE_EXHAUSTED(8)：资源耗尽
+
+	某些资源已经被耗尽，可能是用户配额，或者可能是整个文件系统没有空间。
+
+- FAILED_PRECONDITION(9): 前置条件失败
+
+	操作被拒绝，因为系统不在这个操作执行所要求的状态下。例如，要被删除的目录是非空的，rmdir操作用于非目录等。
+
+	下面很容易见分晓的测试可以帮助服务实现者来决定使用 FAILED_PRECONDITION, ABORTED 和 UNAVAILABLE:
+
+	1. 如果客户端可以重试刚刚这个失败的调用，使用 UNAVAILABLE
+	2. 如果客户端应该在更高级别做重试（例如，重新开始一个 读-修改-写 序列操作），使用 ABORTED
+	3. 如果客户端不应该重试，直到系统状态被明确修复，使用 FAILED_PRECONDITION 。例如，如果 "rmdir" 因为目录非空而失败，应该返回 FAILED_PRECONDITION ，因为客户端不应该重试，除非先通过删除文件来修复目录。
+
+- ABORTED(10): 中途失败
+
+	操作中途失败，通常是因为并发问题如时序器检查失败，事务失败等。
+
+- OUT_OF_RANGE(11)：超出范围
+
+	操作试图超出有效范围，例如，搜索或者读取超过文件结尾。
+
+	和 INVALID_ARGUMENT 不同，这个错误指出的问题可能被修复，如果系统状态修改。例如，32位文件系统如果被要求读取不在范围[0,2^32-1]之内的offset将生成 INVALID_ARGUMENT，但是如果被要求读取超过当前文件大小的offset时将生成 OUT_OF_RANGE 。
+
+	在 FAILED_PRECONDITION 和 OUT_OF_RANGE 之间有一点重叠。当OUT_OF_RANGE适用时我们推荐使用 OUT_OF_RANGE （更具体的错误）.
+
+
+- UNIMPLEMENTED(12): 未实现
+
+	操作没有实现，或者在当前服务中没有支持/开启。
+
+- INTERNAL(13)：内部错误
+
+	内部错误。意味着某些底层系统期待的不变性被打破。如果看到这些错误，说明某些东西被严重破坏。
+
+- UNAVAILABLE(14)：不可用
+
+	服务当前不可用。这大多数可能是一个临时情况，可能通过稍后的延迟重试而被纠正。
+
+- DATA_LOSS(15)：数据丢失
+
+	无法恢复的数据丢失或者损坏。
+
+- UNAUTHENTICATED(16)：未经认证
+
+	请求没有操作要求的有效的认证凭证。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
