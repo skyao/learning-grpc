@@ -34,7 +34,7 @@ protected AbstractStub(Channel channel, CallOptions callOptions) {
 }
 ```
 
-> 注： 类CallOptions 的内容见 [这里](../../common/class_CallOptions.md)
+> 注： 类CallOptions 的内容见 [这里](../channel/class_CallOptions.md)
 
 ## 方法
 
