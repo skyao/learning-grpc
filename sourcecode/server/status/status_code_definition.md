@@ -1,21 +1,9 @@
-类Status
+状态码详细定义
 ========
 
-# 类Status的说明
+>注：在 Status.Code 中通过枚举的方式定义状态码，这些状态码的定义非常的有参考和借鉴价值，因此详细翻译了一遍。
 
-> 注：下面内容翻译自 类Status 的 [javadoc](https://github.com/grpc/grpc-java/blob/master/core/src/main/java/io/grpc/Status.java)
-
-通过提供标准状态码并结合可选的描述性的信息来定义操作的状态。状态的实例创建是通过以合适的状态码开头并补充额外信息：Status.NOT_FOUND.withDescription("Could not find 'important_file.txt'");
-
-对于客户端，每个远程调用在完成时都将返回一个状态。如果发生错误，这个状态将以RuntimeException的方式传播到阻塞桩（blocking stubs），或者作为一个明确的参数给到监听器。
-
-同样的，服务器可以通过抛出 StatusRuntimeException 或者 给回掉传递一个状态来报告状态。
-
-提供工具方法来转换状态到exception并从exception中解析出状态。
-
-# 状态码
-
-## 状态码详细定义
+# 定义和注释
 
 - OK(0)：成功
 
@@ -96,40 +84,6 @@
 
 	请求没有操作要求的有效的认证凭证。
 
+# 思考
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+有个疑问：上述状态码是通过枚举的方式定义的，如果需要做扩展（应对应用自身的特殊的状态），该如何进行？
