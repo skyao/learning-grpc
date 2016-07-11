@@ -18,5 +18,5 @@ gRPC是google最新发布(2015年2月底)的开源RPC框架, 声称是"一个高
 
 如果看到的是github的源代码, 请点击下面的链接:
 
-[gRPC学习笔记@gitbook](https://www.gitbook.com/book/skyao/leaning-grpc/)
+[gRPC学习笔记@gitbook](https://skyao.gitbooks.io/leaning-grpc/)
 
