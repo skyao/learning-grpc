@@ -1,35 +1,27 @@
 {
-    "author": "Sky Ao <aoxiaojian@gmail.cn>",
-    "description": "Grpc学习笔记",
-    "extension": null,
-    "generator": "site",
-    "links": {
-        "sharing": {
-            "all": null,
-            "facebook": null,
-            "google": null,
-            "twitter": null,
-            "weibo": null
-        },
-        "sidebar": {
-            "Sky's Blog": "http://skyao.github.io/"
-        }
+  "author": "Sky Ao <aoxiaojian@gmail.cn>",
+  "description": "gRPC学习笔记",
+  "extension": null,
+  "generator": "site",
+  "sidebar": {
+    "Sky@gitbook": "skyao.gitbooks.io"
+  },
+  "output": null,
+  "pdf": {
+    "fontSize": 12,
+    "footerTemplate": null,
+    "headerTemplate": null,
+    "margin": {
+      "bottom": 36,
+      "left": 62,
+      "right": 62,
+      "top": 36
     },
-    "output": null,
-    "pdf": {
-        "fontSize": 12,
-        "footerTemplate": null,
-        "headerTemplate": null,
-        "margin": {
-            "bottom": 36,
-            "left": 62,
-            "right": 62,
-            "top": 36
-        },
-        "pageNumbers": false,
-        "paperSize": "a4"
-    },
-    "plugins": [],
-    "title": "Leaning gRPC",
-    "variables": {}
+    "pageNumbers": false,
+    "paperSize": "a4"
+  },
+  "plugins": [],
+  "title": "gRPC学习笔记",
+  "variables": {
+  }
 }
