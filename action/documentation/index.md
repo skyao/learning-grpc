@@ -40,9 +40,7 @@ protoc --doc_out=html,index.html:target/contract-doc src/main/proto/*.proto
 
 目前版本还不支持proto3！真是遗憾。
 
-## 后记
+> 2016-08-07 更新： 发现上面的错误提示只是 protoc 版本的问题，只要升级 protoc 版本到v3.0.0，这个 proto-gen-doc 插件依然可以正常工作！ 详细做法请见下一节 "支持proto3".
 
-跑去看了一下，作者正在开发1.0版本，承诺会加入proto3的支持，只能期待这个版本早点发布了。
 
-- [Add support for protobuf 3.0](https://github.com/estan/protoc-gen-doc/issues/17): github上的issue记录
 
