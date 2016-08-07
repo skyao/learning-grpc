@@ -36,3 +36,4 @@ bui# Summary
 	* [文档生成](action/documentation/index.md)
 		* [支持proto3](action/documentation/force_support_proto3.md)
 		* [build插件](action/documentation/build_plugin.md)
+		* [使用模板定制输出](action/documentation/template.md)
