@@ -179,6 +179,19 @@ public abstract T compressorRegistry(CompressorRegistry registry);
 
 设置用于在channen中使用的压缩注册器。这是一个高级API调用，不应该被使用，除非你正在使用定制化的消息编码。默认支持的解压缩在 DecompressorRegistry.getDefaultInstance 中。
 
+### idleTimeout()
+
+```java
+@ExperimentalApi
+public abstract T idleTimeout(long value, TimeUnit unit);
+```
+
+设置在进入空闲模式前的没有RPC的期限。
+
+在空闲模式中， channel会关闭所有连接， NameResolver 和 LoadBalancer 。新的RPC将把channel带出空闲模式。channel以空闲模式开始。
+
+默认，在离开初始化空闲模式 channel 将从不会进入空闲模式
+
 ### build()
 
 使用给定参数来构建一个channel

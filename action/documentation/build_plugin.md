@@ -124,3 +124,55 @@ userService.proto: Import "dolphin/dolphinDescriptor.proto" was not found or had
 # 移过去就好了
 sudo mv /usr/include/dolphin/ /usr/local/include/
 ```
+
+## 在CentOS6上安装
+
+在centos 6 上安装时，遇到更多问题，记录下来备用。
+
+1. /usr/local/bin 值得PATH路径问题
+
+上面的方法build并安装 protobuf-cpp 之后，protoc被成功安装在 `/usr/local/bin/protoc`，直接执行 protoc 也可以找到，但是用jenkins就是报错找不到 protoc 。
+
+只好在jenkins的shell脚本里面加入一句：
+
+```bash
+export PATH=/usr/local/bin:$PATH
+```
+
+随后protoc执行时报错说找不到 libprotoc.so.10 ，但是这个文件是有build到 `/usr/local/lib` 的，只要再加一句，将 `/usr/local/lib` 加入到LD_LIBRARY_PATH：
+
+```bash
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
+```
+
+然后继续报错，这回是 GLIBC 版本太久：
+
+```bash
+protoc-gen-doc: /lib64/libc.so.6: version `GLIBC_2.14' not found (required by protoc-gen-doc)
+protoc-gen-doc: /usr/lib64/libstdc++.so.6: version `GLIBCXX_3.4.14' not found (required by protoc-gen-doc)
+--doc_out: protoc-gen-doc: Plugin failed with status code 1.
+```
+
+安装 GLIBC 2.14 版本(参考 http://blog.csdn.net/dodo_check/article/details/9341145)：
+
+```bash
+wget http://mirror.bjtu.edu.cn/gnu/libc/glibc-2.14.tar.xz
+xz -d glibc-2.14.tar.xz
+tar xvf glibc-2.14.tar
+cd glibc-2.14
+mkdir build
+cd build
+./configure
+make
+make install
+```
+
+不幸报错：
+
+```bash
+/root/glibc-2.14/build/elf/ldconfig: Can't open configuration file /usr/local/lib/glic/etc/ld.so.conf: No such file or directory
+make[1]: Leaving directory `/root/glibc-2.14'
+```
+
+
+

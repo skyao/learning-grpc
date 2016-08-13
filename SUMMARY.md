@@ -38,9 +38,14 @@ bui# Summary
         * [类Status](server/status/class_Status.md)
         * [状态码详细定义](server/status/status_code_definition.md)
         * [类StatusException](server/status/class_StatusException.md)
-* [实战](action/index.md)
+* [实践](action/index.md)
 	* [集成Spring Boot](action/springboot/springboot.md)
 	* [文档生成](action/documentation/index.md)
 		* [支持proto3](action/documentation/force_support_proto3.md)
 		* [build插件](action/documentation/build_plugin.md)
 		* [使用模板定制输出](action/documentation/template.md)
+	* [代理](action/proxy/index.md)
+	* [超时](action/timeout/index.md)
+
+
+
