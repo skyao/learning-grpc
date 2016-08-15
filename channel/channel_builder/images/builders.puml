@@ -13,6 +13,7 @@ class ManagedChannelBuilder {
 + T nameResolverFactory(NameResolver.Factory resolverFactory)
 + T loadBalancerFactory(LoadBalancer.Factory loadBalancerFactory)
 + T decompressorRegistry(DecompressorRegistry registry)
++ T idleTimeout(long value, TimeUnit unit)
 
 + ManagedChannel build()
 }

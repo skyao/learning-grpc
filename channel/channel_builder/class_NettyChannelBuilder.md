@@ -1,16 +1,16 @@
 类NettyChannelBuilder
 ====================
 
-在构建使用netty传输的channel的过程中，用来帮助简化builder。
+在构建使用netty transport的channel的过程中，用来帮助简化d的builder。
 
 # 类定义
 
 ```java
-@ExperimentalApi("There is no plan to make this API stable, given transport API instability")
+@ExperimentalApi("https://github.com/grpc/grpc-java/issues/1784")
 public class NettyChannelBuilder extends AbstractManagedChannelImplBuilder<NettyChannelBuilder> {}
 ```
 
-> 注: 居然还是 @ExperimentalApi， 唉......
+> 注: 都1.0.0-pre2了居然还是 @ExperimentalApi......
 
 
 ## 方法实现
@@ -48,7 +48,7 @@ public final NettyChannelBuilder channelType(Class<? extends Channel> channelTyp
 NegotiationType 用于定义启动HTTP/2的协商方式：
 
 - TLS： 使用 `TLS ALPN/NPN` 协商，假定是 SSL 连接
-- PLAINTEXT_UPGRADE： 为 plaintext(非SSL)从 HTTP/1.1 升级到 HTTP/2 使用 HTTP 升级协议
+- PLAINTEXT_UPGRADE： 使用 HTTP 升级协议为 plaintext(非SSL)从 HTTP/1.1 升级到 HTTP/2
 - PLAINTEXT: 假设连接是 plaintext(非SSL) 而且远程端点直接支持HTTP2.而不需要升级
 
 从实现代码上看，默认是TLS，然后可以通过方法设置：
