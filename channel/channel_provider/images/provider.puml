@@ -1,0 +1,23 @@
+@startuml
+
+abstract class ManagedChannelProvider {
++ static ManagedChannelProvider provider()
+# boolean isAvailable()
+# int priority()
+# ManagedChannelBuilder<?> builderForAddress(String name, int port);
+# ManagedChannelBuilder<?> builderForTarget(String target);
+}
+
+class OkHttpChannelProvider {
+
+}
+
+class NettyChannelProvider {
+
+}
+
+ManagedChannelProvider <-- NettyChannelProvider
+ManagedChannelProvider <-- OkHttpChannelProvider
+
+
+@enduml

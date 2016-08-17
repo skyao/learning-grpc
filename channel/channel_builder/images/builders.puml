@@ -24,19 +24,17 @@ class AbstractManagedChannelImplBuilder {
 }
 
 class NettyChannelBuilder {
-+ channelType(Class<? extends Channel> channelType)
-+ negotiationType(NegotiationType type)
-+ protocolNegotiator(ProtocolNegotiator protocolNegotiator)
-+ sslContext(SslContext sslContext)
-+ eventLoopGroup(EventLoopGroup eventLoopGroup)
-+ usePlaintext(boolean skipNegotiation)
-+ flowControlWindow(int flowControlWindow)
-+ maxMessageSize(int maxMessageSize)
-+ maxHeaderListSize(int maxHeaderListSize)
+}
+
+class OkHttpChannelBuilder {
+}
+
+class InProcessChannelBuilder {
 }
 
 ManagedChannelBuilder <-- AbstractManagedChannelImplBuilder
 AbstractManagedChannelImplBuilder <-- NettyChannelBuilder
-
+AbstractManagedChannelImplBuilder <-- OkHttpChannelBuilder
+AbstractManagedChannelImplBuilder <-- InProcessChannelBuilder
 
 @enduml

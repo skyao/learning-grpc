@@ -19,6 +19,8 @@ T 是这个builder的具体类型。
 
 有两个静态方法用来实例。
 
+ManagedChannelProvider 的使用方式和设计实现，不在这里展开，在下一节 [Channel Provider](../channel_provider/index.md) 中再详细介绍。
+
 ### forAddress()
 
 ```java
