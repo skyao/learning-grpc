@@ -2,7 +2,7 @@
 
 ## 类定义
 
-DnsNameResolver 是 `io.grpc.internal` 下的类，包级私有，看来是不打算给外面的人用了。
+DnsNameResolver 是 `io.grpc.internal` 下的类，包级私有，通过DnsNameResolverFactory类来创建。
 
 研究一下它的实现，以便理解 NameResolver 的使用。
 
