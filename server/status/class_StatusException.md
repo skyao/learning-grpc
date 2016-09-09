@@ -11,10 +11,19 @@ gRPC中定义了两个和 Status 相关的异常，分别是 StatusException 和
 public class StatusException extends Exception {
   private static final long serialVersionUID = -660954903976144640L;
   private final Status status;
+  private final Metadata trailers;
 
   public StatusException(Status status) {
-    super(formatThrowableMessage(status), status.getCause());
+    this(status, null);
+  }
+
+  @ExperimentalApi
+  // 使用状态和跟踪元数据来构建 exception
+  // 这个方法是 1.0.0-pre2 之后才增加的
+  public StatusException(Status status, @Nullable Metadata trailers) {
+    super(Status.formatThrowableMessage(status), status.getCause());
     this.status = status;
+    this.trailers = trailers;
   }
 
   public final Status getStatus() {
@@ -23,7 +32,7 @@ public class StatusException extends Exception {
 }
 ```
 
-异常信息的获取方式：
+Status.formatThrowableMessage()方法用于从 Status 中获取异常的 message 信息：
 
 1. 异常的message
 
@@ -51,23 +60,4 @@ public class StatusException extends Exception {
 
 代码和实现与StatusException完全一致，只是继承的是RuntimeException。
 
-```java
-public class StatusRuntimeException extends RuntimeException {
 
-    private static final long serialVersionUID = 1950934672280720624L;
-    private final Status status;
-
-    public StatusRuntimeException(Status status) {
-    	super(Status.formatThrowableMessage(status), status.getCause());
-    	this.status = status;
-    }
-
-    public final Status getStatus() {
-    	return status;
-    }
-}
-```
-
-# 备注
-
-类StatusRuntimeException 和 类RuntimeException 都没有定义为final，因此有机会通过简单的继承方式来扩展自己的异常定义？
