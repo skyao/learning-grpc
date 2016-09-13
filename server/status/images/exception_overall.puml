@@ -1,0 +1,18 @@
+@startuml
+
+BusinessServer -> BusinessServer : 抛出 StatusRuntimeException
+Note right : 起点：服务器端业务出来抛出异常
+BusinessServer -> gRPCServer : 通过onError()发送
+gRPCServer -> gRPCServer : 获取 Status 和 Metadata
+gRPCServer -> gRPCServer : 转为 HTTP Headers
+
+gRPCServer -> gRPCClient : 发送应答
+gRPCClient -> gRPCClient : 读取 HTTP Headers
+gRPCClient -> gRPCClient : 从 headers 中解析出 Status 和 Metadata
+gRPCClient -> gRPCClient : 将 Status 和 Metadata 转为\n StatusRuntimeException
+
+gRPCClient -> BusinessClient : 抛出 StatusRuntimeException
+BusinessClient -> BusinessClient : 收到 StatusRuntimeException
+Note left : 终点：客户端接收到异常
+
+@enduml

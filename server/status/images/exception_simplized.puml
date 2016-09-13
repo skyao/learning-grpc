@@ -1,0 +1,10 @@
+@startuml
+
+BusinessServer -> gRPCServer : 抛出 StatusRuntimeException
+
+gRPCServer -> gRPCServer : 转为 Status 和 Metadata
+gRPCServer -> gRPCClient : 通过HTTP Header 发送
+gRPCClient -> gRPCClient : 转为 Status 和 Metadata
+gRPCClient -> BusinessClient : 转为 StatusRuntimeException
+
+@enduml
