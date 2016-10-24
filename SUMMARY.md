@@ -1,4 +1,4 @@
-bui# Summary
+# Summary
 
 * [gPRC 介绍](introduction/index.md)
     * [资料收集整理](introduction/information.md)
@@ -55,6 +55,6 @@ bui# Summary
 		* [使用模板定制输出](action/documentation/template.md)
 	* [代理](action/proxy/index.md)
 	* [超时](action/timeout/index.md)
-
+* [全文标签总览](tags.md)
 
 

@@ -1,5 +1,3 @@
-# gRPC学习笔记
-
 ## gRPC介绍
 
 gRPC 是 google 最新发布(开始于2015年2月，正式发布于2016年8月)的开源 RPC 框架, 声称是"一个高性能，开源，将移动和HTTP/2放在首位的通用的RPC框架.". 技术栈非常的新, 基于HTTP/2, netty4.1, proto3, 拥有非常丰富而实用的特性, 堪称新一代RPC框架的典范.
@@ -8,10 +6,6 @@ gRPC 是 google 最新发布(开始于2015年2月，正式发布于2016年8月)�
 
 > 注: **grpc已经正式发布**, 目前最新版本是 1.0.0, 可以在正式产品中使用了。
 
-笔记发布于 gitbook，请点击下面的链接阅读:
-
-https://skyao.gitbooks.io/leaning-grpc/
-
 ## Dolphin 的微服务框架
 
 在2016年下半年，我开始筹划组建一个开源社区的团队来基于 gPRC 构建一个开源免费的开发框架，基本技术选型是以gRPC + springboot + etcd3，希望构建一个性能良好，架构优雅，使用方便的微服务框架。
@@ -19,6 +13,3 @@ https://skyao.gitbooks.io/leaning-grpc/
 这个名为 `Dolphin` 的微服务框架，计划会在 2016 年底开始开发，敬请期待。详情可点击下面的链接查看 Dolphin 微服务框架的信息：
 
 http://dolphin.basiccloud.net
-
-
-
