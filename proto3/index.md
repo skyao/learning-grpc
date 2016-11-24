@@ -10,4 +10,4 @@ gRPC的一个重要基石就是 Protocol Buffer 3, 这个版本(被称为proto3)
 - 开发指南
 - API参考文档
 
-> 注：proto3的内容在上述文档翻译完成之后，发现内容比较多，而且这些内容比较独立。因此提取为单独的一个名为  ["Leaning Proto3" 的 proto3学习笔记](http://skyao.github.io/leaning-proto3/) ，和protocol buffer相关的内容都被转移过去。
+> 注：proto3的内容在上述文档翻译完成之后，发现内容比较多，而且这些内容比较独立。因此提取为单独的一个名为  ["Leaning Proto3" 的 proto3学习笔记](https://www.gitbook.com/book/skyao/leaning-proto3/details) ，和protocol buffer相关的内容都被转移过去。
