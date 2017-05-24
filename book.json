@@ -22,7 +22,7 @@
   ],
   "pluginsConfig": {
     "edit-link": {
-        "base": "https://github.com/skyao/leaning-grpc/edit/master",
+        "base": "https://github.com/skyao/learning-grpc/edit/master",
         "label": "Edit"
     }
   },

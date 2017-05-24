@@ -10,7 +10,7 @@ gRPC 是 google 最新发布(开始于2015年2月，1.0正式版本发布于2016
 
 笔记发布于 gitbook，请点击下面的链接阅读:
 
-https://skyao.gitbooks.io/leaning-grpc/
+https://skyao.gitbooks.io/learning-grpc/
 
 ## Light 微服务框架
 
