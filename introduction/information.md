@@ -39,8 +39,7 @@ Documentation@grpc.io中内容比较重要:
     这个工具似乎不错,对于某些需要提供restul接口场合可以快速的在grpc接口上转换出来.
 
 - [grpc-docker-library](https://github.com/grpc/grpc-docker-library): 包含官方gRPC Docker镜像的Git仓库
-
-
+- [grpc-spring-boot-starter](https://github.com/yidongnan/grpc-spring-boot-starter): 介绍 [gRPC Spring Boot Starter - SprintBoot 的 gRPC 模块](https://www.v2ex.com/t/343538)
 
 
 
