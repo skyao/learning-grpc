@@ -2,7 +2,9 @@
 
 提供对读取和写入元数据数值的访问，元数据数值在调用期间交换。
 
-这个类不是线程安全，实现应该保证header的读取和写入不在多个线程中并发发生。
+key 容许关联到多个值。
+
+这个类不是线程安全，实现应该保证 header 的读取和写入不在多个线程中并发发生。
 
 ## 类定义
 
@@ -16,53 +18,40 @@ public final class Metadata{}
 ## 类属性
 
 ```java
-// 所有的值列表都可以加入。值列表不能为空。
-// 使用 LinkedHashMap 来保证一致的顺序，用于测试
-private final Map<String, List<MetadataEntry>> store = new LinkedHashMap<String, List<MetadataEntry>>();
-
-// 存储在这个原数据中的header的数量
-private int storeCount;
-
-// 构造函数，当应用层想发送元数据时调用
-public Metadata() {}
-
-// 构造函数，当transport层收到二进制元数据时调用
-public Metadata(byte[]... binaryValues) {
-	// 数据是以key/value这样一对一对出现，因此必须是2的整数
-    checkArgument(binaryValues.length % 2 == 0,
-        "Odd number of key-value pairs: %s", binaryValues.length);
-    // 循环时注意i+=2,每两个两个处理
-    for (int i = 0; i < binaryValues.length; i += 2) {
-      // 第一个是name，作为key必要是 ASCII 字符集
-      String name = new String(binaryValues[i], US_ASCII);
-      // 第二个是value，通过 BINARY_HEADER_SUFFIX 来判断 header 是不是二进制
-      storeAdd(name, new MetadataEntry(name.endsWith(BINARY_HEADER_SUFFIX), binaryValues[i + 1]));
-    }
-}
-
 // 所有二进制 header 在他们的名字中应该有这个后缀。相反也是。
 // 它的值是"-bin"。ASCII header 的名字一定不能以这个结尾。
 public static final String BINARY_HEADER_SUFFIX = "-bin";
+
+// 保存的数据
+private byte[][] namesAndValues;
+// 当前未缩放的 header 数量
+private int size;
 ```
 
-### 存取数据的方法
+## 构造函数
 
-1. storeAdd(): 添加存储，注意这个方法真的是线程不安全！
+```java
+// 构造函数，当应用层想发送元数据时调用
+public Metadata() {}
 
-	这个是private的内部方法，public的是put()方法。
+// 构造函数, 当传输层接收到二进制元数据时调用。
+Metadata(byte[]... binaryValues) {
+	// 注意这里长度除以 2 了
+	this(binaryValues.length / 2, binaryValues);
+}
+Metadata(int usedNames, byte[]... binaryValues) {
+    size = usedNames;
+    namesAndValues = binaryValues;
+}
+```
+
+和size相关的几个私有方法：
+
+1. len()
 
 	```java
-    private void storeAdd(String name, MetadataEntry value) {
-        List<MetadataEntry> values = store.get(name);
-        if (values == null) {
-            // 通常 header 的值是唯一的，因此选择很小的数组，初始值设置为1
-            values = new ArrayList<MetadataEntry>(1);
-            store.put(name, values);
-        }
-        // 数量加1
-        storeCount++;
-        // 支持多个值
-        values.add(value);
+    private int len() {
+    	return size * 2；
     }
 	```
 
@@ -70,30 +59,37 @@ public static final String BINARY_HEADER_SUFFIX = "-bin";
 
 	```java
     public int headerCount() {
-    	return storeCount;
+    	return size;
     }
 	```
 
-3. containsKey(): 如果给定的key有值则返回true，注意这里没有检查value是否可能为空列表
+### 存取数据的方法
+
+2. containsKey(): 如果给定的key有值则返回true，注意这里没有检查value是否可能为空列表
 
 	```java
     public boolean containsKey(Key<?> key) {
-    	return store.containsKey(key.name());
+        for (int i = 0; i < size; i++) {
+            if (bytesEqual(key.asciiName(), name(i))) {
+            	return true;
+            }
+        }
+        return false;
     }
 	```
+
+	注意这里是线性搜索，因此如果后面跟有 get() 或者 getAll() 方法，最好直接调用他们然后检查返回值是否为null。
 
 4. get(): 返回最后一个用给定name添加的元数据项，作为T解析，如果没有则返回null
 
 	```java
-    public < T> T get(Key< T> key) {
-        List<MetadataEntry> values = store.get(key.name());
-        if (values == null) {
-          // 如果没有则返回null
-          return null;
+    public < T > T get(Key < T > key) {
+        for (int i = size - 1; i >= 0; i--) {
+            if (bytesEqual(key.asciiName(), name(i))) {
+            	return key.parseBytes(value(i));
+            }
         }
-        // values.size() - 1 是取最后一个，注意这里没有检查values是否可能为空列表
-        MetadataEntry metadataEntry = values.get(values.size() - 1);
-        return metadataEntry.getParsed(key);
+        return null;
     }
 	```
 
@@ -101,35 +97,46 @@ public static final String BINARY_HEADER_SUFFIX = "-bin";
 
 	```java
     public < T> Iterable< T> getAll(final Key< T> key) {
-        if (containsKey(key)) {
-          return Iterables.unmodifiableIterable(Iterables.transform(
-              store.get(key.name()),
-              new Function<MetadataEntry, T>() {
-                @Override
-                public T apply(MetadataEntry entry) {
-                  return entry.getParsed(key);
-                }
-              }));
+        for (int i = 0; i < size; i++) {
+            if (bytesEqual(key.asciiName(), name(i))) {
+            	return new IterableAt<T>(key, i);
+            }
         }
         return null;
     }
 	```
 
+	这里一旦返现有 key 匹配，就直接new 一个 IterableAt 对象。后面对所有 同样 name 的游离是通过 IterableAt 来实现。
+
 6. keys(): 返回存储中的所有key的不可变集合
 
 	```java
-    public Set< String> keys() {
-    	return Collections.unmodifiableSet(store.keySet());
+    @SuppressWarnings("deprecation") // The String ctor is deprecated, but fast.
+    public Set<String> keys() {
+        if (isEmpty()) {
+        	return Collections.emptySet();
+        }
+        Set<String> ks = new HashSet<String>(size);
+        for (int i = 0; i < size; i++) {
+        	ks.add(new String(name(i), 0 /* hibyte */));
+        }
+        // immutable in case we decide to change the implementation later.
+        return Collections.unmodifiableSet(ks);
     }
 	```
 
-7. put(): 添加键值对。如果key已经有值，值被添加到最后。同一个key的重复的值是容许的。
+	实现逻辑很简单，但是有意思的是对 String 构造方法的使用。
+
+7. put(): 添加键值对。如果 key 已经有值，值被添加到最后。同一个key的重复的值是容许的。
 
 	```java
-    public < T> void put(Key< T> key, T value) {
+    public < T > void put(Key< T> key, T value) {
         Preconditions.checkNotNull(key, "key");
         Preconditions.checkNotNull(value, "value");
-        storeAdd(key.name, new MetadataEntry(key, value));
+        maybeExpand();
+        name(size, key.asciiName());
+        value(size, key.toBytes(value));
+        size++;
     }
 	```
 
@@ -139,21 +146,30 @@ public static final String BINARY_HEADER_SUFFIX = "-bin";
     public < T> boolean remove(Key< T> key, T value) {
         Preconditions.checkNotNull(key, "key");
         Preconditions.checkNotNull(value, "value");
-        List<MetadataEntry> values = store.get(key.name());
-        if (values == null) {
-          // 如果没有找到返回false
-          return false;
-        }
-        // for循环是从第一个开始，也就是从添加最早的开始
-        for (int i = 0; i < values.size(); i++) {
-          MetadataEntry entry = values.get(i);
-          if (!value.equals(entry.getParsed(key))) {
-            // 检查每个项目的value
-            continue;
-          }
-          values.remove(i);
-          storeCount--;
-          return true;
+        for (int i = 0; i < size; i++) {
+        	// 从头开始游历
+            if (!bytesEqual(key.asciiName(), name(i))) {
+            	// 找 匹配的name
+            	continue;
+            }
+            @SuppressWarnings("unchecked")
+            T stored = key.parseBytes(value(i));
+            if (!value.equals(stored)) {
+            	// 如果 value 不匹配，跳过
+            	continue;
+            }
+
+            // name 和 value 都匹配了，准备做删除
+            int writeIdx = i * 2;
+            int readIdx = (i + 1) * 2;
+            int readLen = len() - readIdx;
+            // 将后面的数据向前复制
+            System.arraycopy(namesAndValues, readIdx, namesAndValues, writeIdx, readLen);
+            size -= 1;
+            // 将最后一个位置的数据设置为null
+            name(size, null);
+            value(size, null);
+            return true;
         }
         return false;
     }
@@ -163,20 +179,32 @@ public static final String BINARY_HEADER_SUFFIX = "-bin";
 
 	```java
     public <T> Iterable<T> removeAll(final Key<T> key) {
-        List<MetadataEntry> values = store.remove(key.name());
-        if (values == null) {
-          // 如果没有找到值，则返回null
-          return null;
+        if (isEmpty()) {
+        	return null;
         }
-        storeCount -= values.size();
-        return Iterables.transform(values, new Function<MetadataEntry, T>() {
-          @Override
-          public T apply(MetadataEntry metadataEntry) {
-            return metadataEntry.getParsed(key);
-          }
-        });
+        int writeIdx = 0;
+        int readIdx = 0;
+        List<T> ret = null;
+        for (; readIdx < size; readIdx++) {
+        	if (bytesEqual(key.asciiName(), name(readIdx))) {
+        		ret = ret != null ? ret : new LinkedList<T>();
+        		ret.add(key.parseBytes(value(readIdx)));
+        		continue;
+        	}
+        	name(writeIdx, name(readIdx));
+        	value(writeIdx, value(readIdx));
+        	writeIdx++;
+        }
+        int newSize = writeIdx;
+        // Multiply by two since namesAndValues is interleaved.
+        Arrays.fill(namesAndValues, writeIdx * 2, len(), null);
+        size = newSize;
+        return ret;
     }
 	```
+
+10. discardAll(): 删除给定key的所有值但是不返回这些被删除的值。相比removeAll()方法有细微的性能提升，如果不需要使用之前的值。
+
 
 ## 内部定义的类
 
@@ -209,7 +237,7 @@ static final AsciiMarshaller<Integer> INTEGER_MARSHALLER = new AsciiMarshaller<I
 在key的名字中仅容许下列ASCII字符：
 
 - 数字： 0-9
-- 大写字符： A-Z（正常化到小写)
+- 大写字符： A-Z（标准化到小写)
 - 小写字符： a-z
 - 特殊字符： -_.
 
@@ -235,7 +263,7 @@ private static BitSet generateValidTChars() {
   for (char c = '0'; c <= '9'; c++) {
     valid.set(c);
   }
-  // 仅在正常化之后验证，因此排除大小字母
+  // 仅在标准化之后验证，因此排除大写字母
   for (char c = 'a'; c <= 'z'; c++) {
     valid.set(c);
   }

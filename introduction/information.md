@@ -1,14 +1,14 @@
-资料收集整理
-==========
+# 资料收集整理
 
-# 网站
+## 网站
 
 - [grpc官网](http://www.grpc.io/)
 - [grpc-java](https://github.com/grpc/grpc-java) gRPC Java实现.
 - [javadoc](http://www.grpc.io/grpc-java/javadoc/index.html): grpc java 的javadoc地址
 - [grpc google groups](https://groups.google.com/forum/#!forum/grpc-io)
+- [grpc-ecosystem](https://github.com/grpc-ecosystem)
 
-# 文档
+## 文档
 
 - [grpc-common](http://github.com/grpc/grpc-common) 是官方提供的文档和例子, 但是内容实际是指向下面的grpc.io上的Documentation.
 - [Documentation@grpc.io](http://www.grpc.io/docs/) 是grpc.io提供的文档,这个适合入门
@@ -23,12 +23,22 @@ Documentation@grpc.io中内容比较重要:
 ## Demo
 
 - [grpc-android-demo](https://github.com/Lovoo/grpc-android-demo): andriod的demo
+- [grpc-streaming-demo](https://github.com/ridha/grpc-streaming-demo): A quick demo of bi-directional streaming RPC's using grpc, go and python
+- [yeyincai/grpc-demo](https://github.com/yeyincai/grpc-demo): introduces using grpc about encryption、stream、oneof、interceptor、loadbalance demo http://blog.csdn.net/yeyincai
 
 ## 工具
 
 - [grpc-tools](https://github.com/grpc/grpc-tools): Tools useful with gRPC libraries, provided by grpc
 
-# 周边项目
+## 项目
+
+- [kafka-pixy](https://github.com/mailgun/kafka-pixy): gRPC/REST proxy for Kafka
+- [grpc-experiments](https://github.com/grpc/grpc-experiments): Experiments and proposals for gRPC features.
+- [grpc-gateway](https://github.com/grpc-ecosystem/grpc-gateway): gRPC to JSON proxy generator
+- [LogNet/grpc-spring-boot-starter](https://github.com/LogNet/grpc-spring-boot-starter): Spring Boot starter module for gRPC framework.
+- [grpc-opentracing](https://github.com/grpc-ecosystem/grpc-opentracing): OpenTracing is a set of consistent, expressive, vendor-neutral APIs for distributed tracing and context propagation
+
+## 周边项目
 
 - [grpc-gateway](https://github.com/gengo/grpc-gateway)： 是一个基于go语言的项目.
 

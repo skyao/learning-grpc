@@ -12,9 +12,9 @@ public abstract class NameResolver {}
 
 #### getServiceAuthority()
 
-返回 authority ， 这同样也是服务的名字。
+返回用于验证与服务器的连接的权限(authority)。 必须来自受信任的来源，因为如果权限被篡改，RPC可能被发送到攻击者，泄露敏感用户数据。
 
-实现必须本地生成它，而且**必须**保持不变。使用同样的参数从同一个的 factory 中创建出来的 NameResolver 必须返回相同的 authority 。
+实现必须以不阻塞的方式生成它，通常在一行中(in line)，必须保持不变。使用同样的参数从同一个的 factory 中创建出来的 NameResolver 必须返回相同的 authority 。
 
 ```java
 public abstract String getServiceAuthority();
@@ -30,7 +30,7 @@ public abstract void start(Listener listener);
 
 #### shutdown()
 
-停止解析。更新 listener 将会停止。
+停止解析。listener 的更新将会停止。
 
 ```java
 public abstract void shutdown();
@@ -42,7 +42,7 @@ public abstract void shutdown();
 
 只能在 start() 方法被调用之后调用。
 
-这里仅仅是一个暗示。实现类将它作为一个信号，但是可能不会立即开始解析。
+这里仅仅是一个暗示。实现类将它作为一个信号，但是可能不会立即开始解析。它绝不抛出异常。
 
 默认实现是什么都不做。
 
@@ -51,6 +51,8 @@ public void refresh() {}
 ```
 
 ## 内部类 Factory
+
+创建 NameResolver 实例的工厂类。
 
 ```java
 public abstract static class Factory {
@@ -62,7 +64,7 @@ public abstract static class Factory {
 }
 ```
 
-#### newNameResolver()
+### newNameResolver()
 
 创建 NameResolver 用于给定的目标URI，或者在给定URI无法被这个 factory 解析时返回 null。决定应该仅仅基于 URI 的 scheme。
 
@@ -74,7 +76,7 @@ public abstract static class Factory {
 public abstract NameResolver newNameResolver(URI targetUri, Attributes params);
 ```
 
-#### getDefaultScheme()
+### getDefaultScheme()
 
 返回默认 scheme， 当 ManagedChannelBuilder.forTarget(String) 方法被给到 authority 字符串而不是符合的 URI时，用于构建 URI 。
 
@@ -93,21 +95,32 @@ public abstract String getDefaultScheme();
 public interface Listener {}
 ```
 
-#### onUpdate()
+### onUpdate()
+
+注意： 已经被废弃，改用 onAddresses() 方法。
+
+```java
+@Deprecated
+void onUpdate(List<ResolvedServerInfoGroup> servers, Attributes attributes);
+```
+
+### onAddresses()
 
 处理被解析的地址和配置的更新。
 
 实现不可以修改给定的参数 servers 。
 
-参数 servers 指被解析的服务器地址。子列表将当成是一个 EquivalentAddressGroup 。空列表或者所有子列表为空将触发 onError() 方法。
+参数 servers 指被解析的服务器地址。空列表将触发 onError() 方法。
 
 ```java
-void onUpdate(List<? extends List<ResolvedServerInfo>> servers, Attributes config);
+void onAddresses(List<EquivalentAddressGroup> servers, Attributes attributes);
 ```
 
-#### onError()
+### onError()
 
 处理从 resolver 而来的错误。
+
+参数 error 为非正常的状态
 
 ```java
 void onError(Status error);

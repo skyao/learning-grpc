@@ -68,7 +68,7 @@ DnsNameResolver(@Nullable String nsAuthority, String name, Attributes params,
 
 #### getServiceAuthority()
 
-按照要求，这个方法直接返回在构造函数中就设置好的 authority 属性。考虑到 authority 属性是 final 的，因此也满足 NameResolver 接口中要求的：实现必须本地生成它，而且必须保持不变。使用同样的参数从同一个的 factory 中创建出来的 NameResolver 必须返回相同的 authority 。
+按照要求，这个方法直接返回在构造函数中就设置好的 authority 属性。考虑到 authority 属性是 final 的，因此也满足 NameResolver 接口中要求的： "实现必须非阻塞式的生成它，而且必须保持不变。使用同样的参数从同一个的 factory 中创建出来的 NameResolver 必须返回相同的 authority "。
 
 ```java
 public final String getServiceAuthority() {
@@ -84,7 +84,7 @@ public final String getServiceAuthority() {
 
 ```java
 public final synchronized void start(Listener listener) {
-	// 先检查之前没有start过，判断依据是 this.listener 是否复制
+	// 先检查之前没有start过，判断依据是 this.listener 是否已有赋值
     Preconditions.checkState(this.listener == null, "already started");
     timerService = SharedResourceHolder.get(timerServiceResource);
     executor = SharedResourceHolder.get(executorResource);
@@ -156,79 +156,86 @@ private void resolve() {
 }
 ```
 
-继续看 resolutionRunnable 的实现，代码有点长，先排除细节代码，看主流程：
+继续看 resolutionRunnable 的实现，代码有点长，先排除各种细节处理，只看主流程：
 
 ```java
 private final Runnable resolutionRunnable = new Runnable() {
-  @Override
-  public void run() {
-    ......
-
-      try {
-        // 1. 将host解析为多个IP地址，InetAddress格式
-        inetAddrs = getAllByName(host);
-      } catch (UnknownHostException e) {
-		......
-      }
-      List<ResolvedServerInfo> servers =
-          new ArrayList<ResolvedServerInfo>(inetAddrs.length);
-      for (int i = 0; i < inetAddrs.length;i++){
-        InetAddress inetAddr = inetAddrs[i];
-        // 2. 将每个 InetAddress 格式的IP地址包装为 ResolvedServerInfo 对象
-        servers.add(
-            new ResolvedServerInfo(new InetSocketAddress(inetAddr, port), Attributes.EMPTY));
-      }
-      // 3. 通知listner，有数据更新
-      savedListener.onUpdate(
-          Collections.singletonList(servers), Attributes.EMPTY);
-
-  }
-};
+    @Override
+    public void run() {
+    	//忽略此处的状态检查代码和grpc proxy处理代码
+        ......
+        ResolutionResults resolvedInetAddrs;
+        try {
+        	// step1. 将host解析为ResolutionResults
+        	// 新版本引入了一个 delegateResolver，细节稍后再看
+            // 开始对 host 做 dns 解析，得到解析结果
+        	resolvedInetAddrs = delegateResolver.resolve(host);
+        } catch (Exception e) {
+        	...... // 异常处理的流程后面再细看
+            return;
+        }
+        // 解析出来的每个地址组成一个 EAG
+        ArrayList<EquivalentAddressGroup> servers = new ArrayList<EquivalentAddressGroup>();
+        for (InetAddress inetAddr : resolvedInetAddrs.addresses) {
+        	step2. 将每个 InetAddress 格式的IP地址包装为 EquivalentAddressGroup 对象
+        	servers.add(new EquivalentAddressGroup(new InetSocketAddress(inetAddr, port)));
+        }
+        // step3. 通知listner，有数据更新
+        savedListener.onAddresses(servers, Attributes.EMPTY);
+    }
+}
 ```
 
-主流程就是上面注释中的3个步骤：解析地址，包装格式，通知listener。注意这个工作是在异步线程中进行的，无法直接return结果，只能通过listener。
+主流程就是上面注释中的3个步骤：
+
+1. 解析地址
+2. 包装格式
+3. 通知listener
+
+注意这个工作是在异步线程中进行的，无法直接return结果，只能通过listener。
 
 再继续看错误流程，如果解析地址失败：
 
 ```java
-private final Runnable resolutionRunnable = new Runnable() {
-  @Override
-  public void run() {
-    ......
-    try {
-    	inetAddrs = getAllByName(host);
-    } catch (UnknownHostException e) {
-    	// 遇到无法解析的情况
-        synchronized (DnsNameResolver.this) {
-            if (shutdown) {
-                return;
-            }
-            // 因为在产品中 timerService 是一个单线程的 GrpcUtil.TIMER_SERVICE
-            // 我们需要将这个阻塞的工作交给 executor
-            resolutionTask = timerService.schedule(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, TimeUnit.MINUTES);
-            }
-            // 通知listener遇到错误
-            savedListener.onError(Status.UNAVAILABLE.withCause(e));
+try {
+    resolvedInetAddrs = delegateResolver.resolve(host);
+} catch (Exception e) {
+    // 遇到无法解析的情况
+    synchronized (DnsNameResolver.this) {
+        if (shutdown) {
+            // 如果此时已经要求 shutdown，则不用继续处理，直接return
             return;
         }
+        // 因为在产品中 timerService 是一个单线程的 GrpcUtil.TIMER_SERVICE
+        // 我们需要将这个阻塞的工作交给 executor
+        resolutionTask =
+        timerService.schedule(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, TimeUnit.MINUTES);
     }
-    ......
-};
+    // 通知 listener 遇到错误
+    savedListener.onError(Status.UNAVAILABLE.withCause(e));
+    return;
+}
 ```
 
-出错了通知listener这个容易理解，前面的 resolutionTask 是什么呢？
+上面的代码，在处理解析失败时，做了两个事情：
+
+1. 通知 listener 出错了
+2. 安排了一个 resolutionTask
+
+出错了通知 listener 这个容易理解，resolutionTask 是做什么呢？ 我们细看 resolutionTask 相关的代码：
 
 ```java
-// 这是定义，一个标准的ScheduledFuture
-private ScheduledFuture<?> resolutionTask;
+// resolutionTask 的定义，一个标准的 ScheduledFuture
+private ScheduledFuture< ? > resolutionTask;
 ......
-// 唯一一个赋值的地方，就是当解析出错时
+
+// 唯一一个赋值的地方，就是当解析出错时，也就是上面的处理
 resolutionTask = timerService.schedule(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, TimeUnit.MINUTES);
 ```
 
-通过扔给 timerService 一个一次性的 LogExceptionRunnable 的任务，要求延迟1分钟执行，然后得到这个 resolutionTask 的 feature 。这个 feature 在 shutdown()方法和 resolutionRunnable 的 run()方法中有细节处理。
+给 timerService 提交一个 LogExceptionRunnable 的任务，要求延迟1分钟执行，然后将得到的 feature 保存为 resolutionTask 。这个 resolutionTask 在 shutdown()方法和 resolutionRunnable 的 run()方法中有细节处理。
 
-继续看 LogExceptionRunnable 里面做了什么：
+先看看 LogExceptionRunnable 的实现：
 
 ```java
 // 对 Runnable 的简单包裹，用于记录它抛出的任何异常，在重新抛出之前
@@ -244,14 +251,14 @@ public final class LogExceptionRunnable implements Runnable {
     } catch (Throwable t) {
       // 捕获异常，先打印日志，这个是主要目的了
       log.log(Level.SEVERE, "Exception while executing runnable " + task, t);
-      // 再重新抛出去
+      // 再重新抛出去，顺便做了一次到 RuntimeException 的包裹
       throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
     }
   }
 }
 ```
 
-只是简单的执行task并记录日志，所以关键还是看 resolutionRunnableOnExecutor 这里面的内容：
+只是简单的执行 task 并在出错时记录日志，而这里的 task 是 resolutionRunnableOnExecutor，所以关键还是看 resolutionRunnableOnExecutor 里面的实现内容：
 
 ```java
 private final Runnable resolutionRunnableOnExecutor = new Runnable() {
@@ -267,11 +274,13 @@ private final Runnable resolutionRunnableOnExecutor = new Runnable() {
 };
 ```
 
-转了一圈又回来了：
+现在错误流程流程就清晰了：
 
-1. resolutionRunnable 在解析失败时，就会给 timerService 安排一个一分钟之后执行的任务 resolutionTask
-2. 在这个任务中，将重新用 executor 跑一次 resolutionRunnable
-3. 如果继续解析失败，则循环上述过程，每分钟尝试一次
+1. 在解析失败时，就会给 timerService 安排一个一分钟之后执行的任务 resolutionTask
+2. 在 resolutionTask 中，将重新用 executor 跑一次 resolutionRunnable
+3. 如果继续解析失败，则循环上述过程
+
+即解析失败则每隔一分钟尝试一次，直到成功。
 
 注意在 resolutionRunnable 中，每次发现 resolutionTask 存在就会先 cancel 掉它，然后置为null：
 

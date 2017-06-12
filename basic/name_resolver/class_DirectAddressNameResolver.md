@@ -19,7 +19,9 @@ private static class DirectAddressNameResolverFactory extends NameResolver.Facto
 
     @Override
     public NameResolver newNameResolver(URI notUsedUri, Attributes params) {
-      return new NameResolver() {......}
+      return new NameResolver() {
+         ......// 细节后面看
+      }
     }
 
 	@Override
@@ -46,8 +48,9 @@ public NameResolver newNameResolver(URI notUsedUri, Attributes params) {
     @Override
     public void start(final Listener listener) {
       // 不用解析，直接将 factory 中传入并保存的 address 给出去
-      listener.onUpdate(Collections.singletonList(
-              Collections.singletonList(new ResolvedServerInfo(address, Attributes.EMPTY))),Attributes.EMPTY);
+      listener.onAddresses(
+              Collections.singletonList(new EquivalentAddressGroup(address)),
+              Attributes.EMPTY);
     }
 
     @Override
