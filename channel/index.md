@@ -1,8 +1,7 @@
-Channel层
-=============
+# Channel层
 
-`Channel` 提供在 `transport` 层之上的抽象，设计用来被 `stub` 调用。Channel 和相关的 `ClientCall` 和 `ClientCall.Listener` 交换被解析的请求(request)和应答(response)对象，而 transport 层仅仅处理序列化后的数据。
+`Channel` 到概念上的端点的虚拟连接，用于执行RPC。 通道可以根据配置，负载等自由地实现与端点零或多个实际连接。通道也可以自由地确定要使用的实际端点，并且可以在每次 RPC 上进行更改，从而允许客户端负载平衡。应用程序通常期望使用存根(stub)，而不是直接调用这个类。
 
-应用可以通过使用 `ClientInterceptor` 装饰 `Channel` 来实现添加通用的横切行为到 stub 上。预期大部分应用代码将不会直接使用这个类，而是使用已经绑定到 Channel 的 stub， 而 Channel 在应用初始化时已经被装饰好。
+应用可以通过使用 ClientInterceptor 装饰 Channel 实现来为 stub 添加常见的切面行为。预计大多数应用代码不会直接使用此类，而是使用已绑定到在应用初始化期间装饰好的 Channel 上的存根。
 
 > 注： 上面两段内容翻译自 类 io.grpc.Channel 的 javadoc.
