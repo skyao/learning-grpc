@@ -1,5 +1,4 @@
-类ManagedChannel
-================
+# 类ManagedChannel
 
 类ManagedChannel 在 Channel 的基础上提供生命周期管理的功能。
 
@@ -23,15 +22,15 @@ public abstract class ManagedChannel extends Channel {}
 public abstract ManagedChannel shutdown();
 ```
 
-发起一个强制的关闭，期间已经存在的调用和新的调用都将被取消。虽然是强制，关闭过程依然不是即可生效;如果在这个方法返回后立即调用 isTerminated() 方法，将可能返回 false 。
+发起一个有组织的关闭，期间已经存在的调用将继续，而新的调用将被立即取消。
 
-### shutdown()方法
+### shutdownNow()方法
 
 ```java
-public abstract ManagedChannel shutdown();
+public abstract ManagedChannel shutdownNow();
 ```
 
-发起一个有组织的关闭，期间已经存在的调用将继续，而新的调用将被立即取消。
+发起一个强制的关闭，期间已经存在的调用和新的调用都将被取消。虽然是强制，关闭过程依然不是即可生效;如果在这个方法返回后立即调用 isTerminated() 方法，将可能返回 false 。
 
 ### isShutdown()方法
 
