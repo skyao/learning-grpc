@@ -1,8 +1,8 @@
 {
   "gitbook": ">=3.2.0",
-  "description": "gRPC 学习笔记",
+  "description": "gRPC学习笔记",
   "language": "zh-hans",
-  "author": "Sky Ao <aoxiaojian@gmail.cn>",
+  "author": "Sky Ao <aoxiaojian@gmail.com>",
   "extension": null,
   "generator": "site",
   "links" : {
@@ -11,22 +11,29 @@
     }
   },
   "structure" : {
-        "readme" : "README_gitbook.md"
     },
   "plugins": [
-    "toggle-chapters",
-    "edit-link", 
-    "etoc",
+    "splitter",
+    "-search",
+    "-sharing",
+    "edit-link",
+    "page-toc-button",
     "back-to-top-button",
+    "github-buttons@2.1.0",
     "tags"
   ],
   "pluginsConfig": {
     "edit-link": {
         "base": "https://github.com/skyao/learning-grpc/edit/master",
         "label": "Edit"
+    },
+    "github-buttons": {
+        "repo": "skyao/learning-grpc",
+        "types": ["star"],
+        "size": "small"
     }
   },
-  "title": "gRPC 学习笔记",
+  "title": "gRPC学习笔记",
   "variables": {
   }
 }

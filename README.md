@@ -1,24 +1,25 @@
 # gRPC学习笔记
 
-## gRPC介绍
-
 gRPC 是 google 最新发布(开始于2015年2月，1.0正式版本发布于2016年8月)的开源 RPC 框架, 声称是"一个高性能，开源，将移动和HTTP/2放在首位的通用的RPC框架.". 技术栈非常的新, 基于HTTP/2, netty4.1, proto3, 拥有非常丰富而实用的特性, 堪称新一代RPC框架的典范.
 
-这份学习笔记记录 google gRPC 学习过程中的各种资料和信息，已经实际使用过程的心得, 另外针对性的翻译了部分特别有价值的英文资料。
+这是个人学习gRPC的笔记，请点击下面的链接阅读或者下载电子版本:
 
-> 注: **grpc已经正式发布**, 目前最新版本是 1.3.0, 完全可以在产品中使用了。
+- 在线阅读
+	- [国外服务器][gitbook]：gitbook提供的托管，服务器在国外，速度比较慢，偶尔被墙，HTTPS
+	- [国内服务器][qcloud]：腾讯云加速，国内网速极快，非HTTPS
+- [下载pdf格式][pdf]
+- [下载mobi格式][mobi]
+- [下载epub格式][epub]
 
-笔记发布于 gitbook，请点击下面的链接阅读:
+本文内容可以任意转载，但是需要注明来源并提供链接。
 
-https://skyao.gitbooks.io/learning-grpc/
+**请勿用于商业出版**。
 
-## Light 微服务框架
-
-在2016年下半年，我开始筹划组建一个开源社区的团队来基于 gPRC 构建一个开源免费的开发框架，基本技术选型是以gRPC + springboot + etcd3，希望构建一个性能良好，架构优雅，使用方便的微服务框架。
-
-这个名为 `Light` 的微服务框架，已经在2017年初开始开发并发布在github上，目前还处于早期开发阶段。详情可点击下面的链接查看 Light 微服务框架的信息：
-
-http://light.basiccloud.net
+[gitbook]: https://skyao.gitbooks.io/learning-grpc/
+[qcloud]: http://skyao.io/learning-grpc/
+[pdf]: https://www.gitbook.com/download/pdf/book/skyao/learning-grpc
+[mobi]: https://www.gitbook.com/download/mobi/book/skyao/learning-grpc
+[epub]: https://www.gitbook.com/download/epub/book/skyao/learning-grpc
 
 
 
