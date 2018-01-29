@@ -23,7 +23,8 @@ private final int port;
 
 DnsNameResolver(@Nullable String nsAuthority, String name, Attributes params,
       Resource<ScheduledExecutorService> timerServiceResource,
-      Resource<ExecutorService> executorResource) {
+      Resource<ExecutorService> executorResource,
+      ProxyDetector proxyDetector) {
 
     // 必须在 name 前加上"//"，否则将被当成含糊的URI，导致生成的URI的authority和host会变成null。
     URI nameUri = URI.create("//" + name);
@@ -180,8 +181,9 @@ private final Runnable resolutionRunnable = new Runnable() {
         	step2. 将每个 InetAddress 格式的IP地址包装为 EquivalentAddressGroup 对象
         	servers.add(new EquivalentAddressGroup(new InetSocketAddress(inetAddr, port)));
         }
+        // 跳过balancerAddresses和TXT的处理
         // step3. 通知listner，有数据更新
-        savedListener.onAddresses(servers, Attributes.EMPTY);
+        savedListener.onAddresses(servers, attrs.build());
     }
 }
 ```
@@ -206,13 +208,14 @@ try {
             // 如果此时已经要求 shutdown，则不用继续处理，直接return
             return;
         }
-        // 因为在产品中 timerService 是一个单线程的 GrpcUtil.TIMER_SERVICE
+        // 因为在生产中 timerService 是一个单线程的 GrpcUtil.TIMER_SERVICE
         // 我们需要将这个阻塞的工作交给 executor
         resolutionTask =
         timerService.schedule(new LogExceptionRunnable(resolutionRunnableOnExecutor), 1, TimeUnit.MINUTES);
     }
     // 通知 listener 遇到错误
-    savedListener.onError(Status.UNAVAILABLE.withCause(e));
+    savedListener.onError(Status.UNAVAILABLE.withDescription(
+    	"Unable to resolve host " + host).withCause(e));
     return;
 }
 ```
@@ -251,8 +254,10 @@ public final class LogExceptionRunnable implements Runnable {
     } catch (Throwable t) {
       // 捕获异常，先打印日志，这个是主要目的了
       log.log(Level.SEVERE, "Exception while executing runnable " + task, t);
-      // 再重新抛出去，顺便做了一次到 RuntimeException 的包裹
-      throw t instanceof RuntimeException ? (RuntimeException) t : new RuntimeException(t);
+      // 如果是RuntimeException或者Error，就直接原样抛出去
+      MoreThrowables.throwIfUnchecked(t);
+      // 否则就生成一个新的AssertionError抛出去
+      throw new AssertionError(t);
     }
   }
 }

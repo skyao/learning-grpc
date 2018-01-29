@@ -11,7 +11,7 @@ private static class DirectAddressNameResolverFactory extends NameResolver.Facto
     final SocketAddress address;
     final String authority;
 
-	// 构造函数中直接提供 地址 和 authority
+	// 构造函数中直接提供 address 和 authority
     DirectAddressNameResolverFactory(SocketAddress address, String authority) {
       this.address = address;
       this.authority = authority;
@@ -34,7 +34,7 @@ private static class DirectAddressNameResolverFactory extends NameResolver.Facto
 
 ## NameResolver的实现
 
-NameResolver的实现是一个内部匿名类：
+DirectAddressNameResolverFactory的NameResolver的实现是一个内部匿名类：
 
 ```java
 public NameResolver newNameResolver(URI notUsedUri, Attributes params) {
