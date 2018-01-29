@@ -8,19 +8,13 @@
 
 ```java
 final InUseStateAggregator<Object> inUseStateAggregator = new InUseStateAggregator<Object>() {
-    @Override
-    Object getLock() {
-      return lock;
-    }
 
     @Override
-    @GuardedBy("lock")
     void handleInUse() {
       // 被使用时，就退出空闲模式
       exitIdleMode();
     }
 
-    @GuardedBy("lock")
     @Override
     void handleNotInUse() {
       if (shutdown) {
@@ -37,65 +31,53 @@ final InUseStateAggregator<Object> inUseStateAggregator = new InUseStateAggregat
 ```java
 static final long IDLE_TIMEOUT_MILLIS_DISABLE = -1;
 
-static final ClientTransport IDLE_MODE_TRANSPORT = new FailingClientTransport(Status.INTERNAL.withDescription("Channel is in idle mode"));
-
+/** 进入空闲模式的超时时间 **/
 private final long idleTimeoutMillis;
-
-// 保存进入空闲模式时被 shutdown (但是还没有terminated) 的Transports
-@GuardedBy("lock")
-private final HashSet<TransportSet> decommissionedTransports = new HashSet<TransportSet>();
 ```
 
 ### idle timer
 
 ```java
-@GuardedBy("lock")
+// 不能为null，一定会被 channelExecutor 使用
 @Nullable
 private ScheduledFuture< ?> idleModeTimerFuture;
 
-@GuardedBy("lock")
+// 不能为null，一定会被 channelExecutor 使用
 @Nullable
 private IdleModeTimer idleModeTimer;
 ```
 
-类IdleModeTimer 实际是一个 Runnable (按说取名应该是IdleModeTimerTask才对)，用于使 Channel 进入空闲模式，并关闭以下内容：
+类 IdleModeTimer 实际是一个 Runnable (按说取名应该是IdleModeTimerTask才对)，用于使 Channel 进入空闲模式，并关闭以下内容：
 
 1. Name Resolver
 2. Load Balancer
-3. 当前正在使用的 Transport
+3. subchannelPicker
 
 ```java
+// 由 channelExecutor 运行
 private class IdleModeTimer implements Runnable {
-    @GuardedBy("lock")
+    // 仅仅由 channelExecutor 修改
     boolean cancelled;
 
     @Override
     public void run() {
-      ArrayList<TransportSet> transportsCopy = new ArrayList<TransportSet>();
-      LoadBalancer<ClientTransport> savedBalancer;
-      NameResolver oldResolver;
-      synchronized (lock) {
         if (cancelled) {
-          // Race detected: this task started before cancelIdleTimer() could cancel it.
-          return;
+        	// 检测到竞争： 这个任务在 channelExecutor 中安排在 cancelIdleTimer() 之前
+            // 需要取消timer
+        	return;
         }
-        // 进入空闲模式
-        savedBalancer = loadBalancer;	// 保存当前的loadBalancer
-        loadBalancer = null;			// 将loadBalancer设置为null
-        oldResolver = nameResolver;		// 保存当前的nameResolver，然后再重新创建一个新的nameResolver
+        log.log(Level.FINE, "[{0}] Entering idle mode", getLogId());
+        // nameResolver 和 loadBalancer 保证不为null。如果他们中的任何一个是 null ，
+        // 要不是 idleModeTimer 在没有退出空闲模式的情况下运行了两次，
+        // 就是 shutdown() 中的任务没有取消 idleModeTimer，两者都是bug
+        // 1. 关闭当前的 nameResolver, 并重新创建一个新的 nameResolver
+        nameResolver.shutdown();
         nameResolver = getNameResolver(target, nameResolverFactory, nameResolverParams);
-        transportsCopy.addAll(transports.values());	// 保存当前的transports
-        transports.clear();		// 清理当前的transports
-        decommissionedTransports.addAll(transportsCopy); // 将要关闭的 Transports 保存起来
-      }
-      for (TransportSet ts : transportsCopy) {
-      	// 关闭当前所有的transports
-        ts.shutdown();
-      }
-      // 关闭 Load Balancer
-      savedBalancer.shutdown();
-      // 关闭 Name Resolver
-      oldResolver.shutdown();
+        // 2. 关闭当前的 loadBalancer 并置为 null
+        loadBalancer.shutdown();
+        loadBalancer = null;
+        // 3. 当前 subchannelPicker 置为 null
+        subchannelPicker = null;
     }
 }
 ```
@@ -107,44 +89,39 @@ private class IdleModeTimer implements Runnable {
 让 Channel 退出空闲模式，如果它处于空闲模式中。返回一个新的可以用于处理新请求的 LoadBalancer。如果 Channel 被关闭则返回null。
 
 ```java
-LoadBalancer<ClientTransport> exitIdleMode() {
-    final LoadBalancer<ClientTransport> balancer;
-    final NameResolver resolver;
-    synchronized (lock) {
-      if (shutdown) {
-        return null;
-      }
-      if (inUseStateAggregator.isInUse()) {
-        // 如果正在使用中，则后台会有一个idle timer，需要取消这个timer
+//让 channel 退出空闲模式，如果它处于空闲模式
+//必须由 channelExecutor 调用
+void exitIdleMode() {
+    if (shutdown.get()) {
+    	return;
+    }
+    if (inUseStateAggregator.isInUse()) {
+        // 立即取消 timer，这样由于 timer 导致的竞争不会将 channel 设置为空闲
+        // 注： 如果正在使用中，则后台会有一个idle timer，需要取消这个timer
         cancelIdleTimer();
-      } else {
-        // exitIdleMode()可能在 inUseStateAggregator 之外被调用
-        // 这样就可能依然处于"未被使用"的状态
-        // 如果是这样，我们启动timer，它将被迅速取消，如果 aggregator 收到实际请用请求。
+    } else {
+        // exitIdleMode() 可能在 inUseStateAggregator.handleNotInUse() 之外被调用，此时isInUse() == false
+        // 在这种情况下我们依然需要安排 timer
         rescheduleIdleTimer();
-      }
-      if (loadBalancer != null) {
-        return loadBalancer;
-      }
-      balancer = loadBalancerFactory.newLoadBalancer(nameResolver.getServiceAuthority(), tm);
-      this.loadBalancer = balancer;
-      resolver = this.nameResolver;
     }
-    class NameResolverStartTask implements Runnable {
-      @Override
-      public void run() {
-        // This may trigger quite a few non-trivial work in LoadBalancer and NameResolver,
-        // we don't want to do it in the lock.
-        resolver.start(new NameResolverListenerImpl(balancer));
-      }
+    if (loadBalancer != null) {
+    	return;
     }
+    log.log(Level.FINE, "[{0}] Exiting idle mode", getLogId());
+    // 1. 创建新的 loadBalancer
+    LbHelperImpl helper = new LbHelperImpl(nameResolver);
+    helper.lb = loadBalancerFactory.newLoadBalancer(helper);
+    this.loadBalancer = helper.lb;
 
-    scheduledExecutor.execute(new NameResolverStartTask());
-    return balancer;
+	// 2. 创建新的 NameResolverListener
+    NameResolverListenerImpl listener = new NameResolverListenerImpl(helper);
+    try {
+    	nameResolver.start(listener);
+    } catch (Throwable t) {
+    	listener.onError(Status.fromThrowable(t));
+    }
 }
 ```
-
-> 注： 第一次看到在方法内这样写一个类（上面的NameResolverStartTask），汗，理由是什么？为什么不是直接写一个内部匿名类 `scheduledExecutor.execute(new Runnable(){...})` ?
 
 ### cancelIdleTimer()的实现
 
@@ -175,7 +152,14 @@ private void rescheduleIdleTimer() {
     // 重新再构造一个timer
     idleModeTimer = new IdleModeTimer();
     // 重新再安排这个timer的执行
-    idleModeTimerFuture = scheduledExecutor.schedule(new LogExceptionRunnable(idleModeTimer), idleTimeoutMillis, TimeUnit.MILLISECONDS);
+    idleModeTimerFuture = scheduledExecutor.schedule(
+        new LogExceptionRunnable(new Runnable() {
+            @Override
+            public void run() {
+              channelExecutor.executeLater(idleModeTimer).drain();
+            }
+          }),
+        idleTimeoutMillis, TimeUnit.MILLISECONDS);
 }
 ```
 
@@ -191,6 +175,13 @@ static final long IDLE_TIMEOUT_MILLIS_DISABLE = -1;
 private final long idleTimeoutMillis;
 
 ManagedChannelImpl(String target, ......, long idleTimeoutMillis, ......) {
+	......
+    if (idleTimeoutMillis == IDLE_TIMEOUT_MILLIS_DISABLE) {
+    	this.idleTimeoutMillis = idleTimeoutMillis;
+    } else {
+    	checkArgument(idleTimeoutMillis >= AbstractManagedChannelImplBuilder.IDLE_MODE_MIN_TIMEOUT_MILLIS, "invalid idleTimeoutMillis %s", idleTimeoutMillis);
+    	this.idleTimeoutMillis = idleTimeoutMillis;
+    }
     // 有效性检查，要开启就必须 > 0，要关闭就设置为 IDLE_TIMEOUT_MILLIS_DISABLE
 	checkArgument(idleTimeoutMillis > 0 || idleTimeoutMillis == IDLE_TIMEOUT_MILLIS_DISABLE, "invalid idleTimeoutMillis %s", idleTimeoutMillis);
     // 构造函数中赋值
@@ -198,7 +189,7 @@ ManagedChannelImpl(String target, ......, long idleTimeoutMillis, ......) {
 }
 ```
 
-再往上追，控制权在构造 ManagedChannelImpl 时，只有一个调用的地方, AbstractManagedChannelImplBuilder中的build()方法：
+再往上追，控制权在构造 ManagedChannelImpl 时，只有一个调用的地方, AbstractManagedChannelImplBuilder 中的build()方法：
 
 ```java
 public ManagedChannelImpl build() {
@@ -207,16 +198,19 @@ public ManagedChannelImpl build() {
 }
 ```
 
-属性 idleTimeoutMillis 在build() 时传入，而这个属性的设置是通过 idleTimeout() 方法：
+属性 idleTimeoutMillis 在 build() 时传入，而这个属性的设置是通过 idleTimeout() 方法：
 
 ```java
 // 默认值为 IDLE_TIMEOUT_MILLIS_DISABLE
 // 因此如果不调用 idleTimeout() , 默认是不会开启空闲模式的
-private long idleTimeoutMillis = ManagedChannelImpl.IDLE_TIMEOUT_MILLIS_DISABLE;
+private long idleTimeoutMillis = IDLE_TIMEOUT_MILLIS_DISABLE;
 
 // 最大的空闲超时时间，比这个还大则将禁用空闲模式
 // 最大空闲30天，也够夸张的
 static final long IDLE_MODE_MAX_TIMEOUT_DAYS = 30;
+
+// 默认超时时间
+static final long IDLE_MODE_DEFAULT_TIMEOUT_MILLIS = TimeUnit.MINUTES.toMillis(30);
 
 // 最小空闲时间为1秒，如果设置的比这个还短则会设置为1秒
 static final long IDLE_MODE_MIN_TIMEOUT_MILLIS = TimeUnit.SECONDS.toMillis(1);
