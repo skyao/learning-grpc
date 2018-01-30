@@ -17,21 +17,16 @@
     "-search",
     "-sharing",
     "edit-link",
-    "page-toc-button",
-    "back-to-top-button",
-    "github-buttons@2.1.0",
-    "tags"
+	"devops"
   ],
   "pluginsConfig": {
     "edit-link": {
         "base": "https://github.com/skyao/learning-grpc/edit/master",
         "label": "Edit"
     },
-    "github-buttons": {
-        "repo": "skyao/learning-grpc",
-        "types": ["star"],
-        "size": "small"
-    }
+	"devops":{
+		"bd_token": "c7442f5794ea2abb71c6ff05dc0b8779"
+	}
   },
   "title": "gRPC学习笔记",
   "variables": {
