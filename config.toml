@@ -1,0 +1,100 @@
+baseurl = "http://localhost:1313/"
+uglyurls = true
+relativeURLs=false
+languageCode = "zh-cn"
+title = "gRPC学习笔记"
+theme = "hugo-material-docs"
+metadataformat = "yaml"
+canonifyurls = true
+preserveTaxonomyNames = true
+disablePathToLower = true
+
+# Enable Google Analytics by entering your tracking id
+googleAnalytics = "c7442f5794ea2abb71c6ff05dc0b8779"
+
+[params]
+	# General information
+	author = "敖小剑"
+	keywords = "gRPC,学习笔记,敖小剑"
+	description = "学习使用gRPC"
+	copyright = "版权所有，转载请注明出处"
+
+	# Repository
+	provider = "GitHub"
+	repo_url = "https://github.com/skyao/learning-grpc"
+	
+	version = ""
+	logo = "images/logo.png"
+	favicon = ""
+	
+	permalink = "#"
+    # reward button, comment this to disable it
+    reward = true
+
+	# Custom assets
+	custom_css = []
+	custom_js  = []
+	
+	# Syntax highlighting theme
+	highlight_css  = ""
+	
+	[params.palette]
+		primary = "red"
+		accent  = "teal"
+	
+	[params.font]
+		text = "Ubuntu"
+		code = "Ubuntu Mono"
+
+[social]
+	twitter = ""
+	github  = "skyao"
+	email   = "aoxiaojian@gmail.com"
+
+
+[[menu.main]]
+	name   = "前言"
+	url    = "/"
+	weight = 1
+
+[[menu.main]]
+	name   = "介绍"
+	identifier = "introduction"
+	url    = "/introduction/"
+	weight = 1000
+
+[[menu.main]]
+	name   = "Name Resolver"
+	identifier = "nameresolver"
+	url    = "/nameresolver/"
+	weight = 10000
+
+[[menu.main]]
+	name   = "设计及文档"
+	identifier = "nameresolver-design"
+	url    = "/nameresolver/design"
+	parent = "nameresolver"
+	weight = 10200
+
+
+[[menu.main]]
+	name   = "Naming Package"
+	identifier = "nameresolver-naming"
+	url    = "/nameresolver/naming"
+	parent = "nameresolver"
+	weight = 10300
+
+[[menu.main]]
+	name   = "Resolver Package"
+	identifier = "nameresolver-resolver"
+	url    = "/nameresolver/resolver"
+	parent = "nameresolver"
+	weight = 10500
+
+[blackfriday]
+	smartypants	= true
+	fractions = true
+	smartDashes = true
+	plainIDAnchors = true
+
+
